@@ -11,9 +11,9 @@ Este exercício levará aproximadamente **40** minutos para ser concluído.
 
 ## Provisionar um workspace do Azure Databricks
 
-> **Dica**: Se você já possui um workspace do Azure Databricks, pode ignorar esse procedimento e usar o workspace existente.
+> **Dica**: Se você já tem um workspace do Azure Databricks, pode ignorar esse procedimento e usar o workspace existente.
 
-Este exercício inclui um script para provisionar um novo workspace do Azure Databricks. O script tenta criar um recurso de workspace do Azure Databricks de camada *Premium* em uma região na qual sua assinatura do Azure tenha cota suficiente para os núcleos de computação necessários para este exercício; e pressupõe que sua conta de usuário tenha permissões suficientes na assinatura para criar um recurso de workspace do Azure Databricks. Se o script falhar devido a cotas ou permissões insuficientes, tente criar um workspace do Azure Databricks interativamente no portal do Azure.
+Este exercício inclui um script para provisionar um novo workspace do Azure Databricks. O script tenta criar um recurso de workspace do Azure Databricks de camada *Premium* em uma região na qual sua assinatura do Azure tenha cota suficiente para os núcleos de computação necessários para este exercício; e pressupõe que sua conta de usuário tenha permissões suficientes na assinatura para criar um recurso de workspace do Azure Databricks. Se o script falhar devido a cota ou permissões insuficientes, você pode tentar criar um workspace do Azure Databricks interativamente no portal do Azure.
 
 1. Em um navegador da web, entre no [portal da Azure](https://portal.azure.com) em `https://portal.azure.com`.
 2. Use o botão **[\>_]** à direita da barra de pesquisa na parte superior da página para criar um Cloud Shell no portal do Azure, selecionando um ambiente ***PowerShell*** e criando um armazenamento caso solicitado. O Cloud Shell fornece uma interface de linha de comando em um painel na parte inferior do portal do Azure, conforme mostrado aqui:
@@ -31,7 +31,7 @@ Este exercício inclui um script para provisionar um novo workspace do Azure Da
     git clone https://github.com/MicrosoftLearning/mslearn-databricks
     ```
 
-5. Após clonar o repositório, insira o seguinte comando para executar o script **setup.ps1** para provisionar um workspace do Azure Databricks em uma região disponível:
+5. Depois que o repositório tiver sido clonado, insira o seguinte comando para executar **setup.ps1** do script, que provisiona um workspace do Azure Databricks em uma região disponível:
 
     ```
     ./mslearn-databricks/setup.ps1
@@ -107,7 +107,7 @@ Para usar o Azure Databricks de um pipeline do Azure Data Factory, você precisa
 
 ### Criar um serviço vinculado no Azure Data Factory
 
-1. Retorne ao portal do Azure e, no grupo de recursos **dp203-*xxxxxxx***, selecione o recurso **adf*xxxxxxx*** do Azure Data Factory.
+1. Retorne ao portal do Azure e, no grupo de recursos **msl-*xxxxxxx***, selecione o recurso **adf*xxxxxxx*** do Azure Data Factory.
 2. Na página **Visão geral**, selecione **Iniciar estúdio** para abrir o Azure Data Factory Studio. Entre, se for solicitado.
 3. No Azure Data Factory Studio, use o ícone **>>** para expandir o painel de navegação à esquerda. Em seguida, selecione a página **Gerenciar**.
 4. Na página **Gerenciar**, na guia **Serviços vinculados**, selecione **+ Novo** para adicionar um novo serviço vinculado.
@@ -158,6 +158,7 @@ Agora que você criou um serviço vinculado, pode usá-lo em um pipeline para ex
     > **Observação**: se o pipeline falhar, a assinatura pode ter cota insuficiente na região onde seu workspace do Azure Databricks é provisionado para criar um cluster de trabalho. Consulte [Limite de núcleo da CPU impede a criação do cluster](https://docs.microsoft.com/azure/databricks/kb/clusters/azure-core-limit) para obter detalhes. Se isso acontecer, você pode tentar excluir seu workspace e criar um novo workspace em uma região diferente. Você pode especificar uma região como um parâmetro para o script de instalação da seguinte maneira: `./setup.ps1 eastus`
 
 4. Quando a execução for bem-sucedida, selecione seu nome para exibir os detalhes da execução. Em seguida, na página **Processar Dados com Databricks**, na seção **Execuções da Atividade**, selecione a atividade **Processar Dados** e use o ícone de ***saída*** para ver a saída JSON na atividade, que será semelhante a isto:
+
     ```json
     {
         "runPageUrl": "https://adb-..../run/...",
