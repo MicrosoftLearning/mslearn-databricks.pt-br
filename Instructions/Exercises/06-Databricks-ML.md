@@ -87,7 +87,7 @@ O cenário deste exercício baseia-se em observações de pinguins na Antártida
 
 > **Citação**: O conjunto de dados sobre pinguins usado neste exercício é um subconjunto dos dados coletados e disponibilizados pela [Dra. Kristen Gorman](https://www.uaf.edu/cfos/people/faculty/detail/kristen-gorman.php) e pela [Estação Palmer, LTER Antártida](https://pal.lternet.edu/), membro da [Rede LTER (Rede de Pesquisa Ecológica de Longo Prazo)](https://lternet.edu/).
 
-1. Na primeira célula do notebook, insira o código a seguir, que usa comandos *shell* para baixar os dados sobre os pinguins do GitHub no DBFS (sistema de arquivos do Databricks) usado pelo cluster.
+1. Na primeira célula do notebook, insira o código a seguir, que usa os comandos de *shell* para baixar os dados sobre pinguins do GitHub para o sistema de arquivos usado pelo cluster.
 
     ```bash
     %sh
@@ -96,7 +96,7 @@ O cenário deste exercício baseia-se em observações de pinguins na Antártida
     wget -O /dbfs/ml_lab/penguins.csv https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/penguins.csv
     ```
 
-1. Use a opção de menu **&#9656; Executar Célula** no canto superior direito da célula seguinte para executá-la. Em seguida, aguarde o término do trabalho do Spark executado pelo código.
+1. Use a opção de menu **&#9656; Executar Célula** à esquerda da célula para executá-la. Em seguida, aguarde o término do trabalho do Spark executado pelo código.
 
 ## Explorar e limpar os dados
   
