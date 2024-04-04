@@ -15,9 +15,9 @@ Este exercício deve levar aproximadamente **30** minutos para ser concluído.
 
 > **Dica**: Se você já tem um workspace do Azure Databricks, pode ignorar esse procedimento e usar o workspace existente.
 
-Este exercício inclui um script para provisionar um novo workspace do Azure Databricks. O script tenta criar um recurso de workspace do Azure Databricks de camada *Premium* em uma região na qual sua assinatura do Azure tenha cota suficiente para os núcleos de computação necessários para este exercício; e pressupõe que sua conta de usuário tenha permissões suficientes na assinatura para criar um recurso de workspace do Azure Databricks. Se o script falhar devido a cota ou permissões insuficientes, você pode tentar criar um workspace do Azure Databricks interativamente no portal do Azure.
+Este exercício inclui um script para provisionar um novo workspace do Azure Databricks. O script tenta criar um recurso de workspace do Azure Databricks de camada *Premium* em uma região na qual sua assinatura do Azure tenha cota suficiente para os núcleos de computação necessários para este exercício; e pressupõe que sua conta de usuário tenha permissões suficientes na assinatura para criar um recurso de workspace do Azure Databricks. Se o script falhar devido a cota insuficiente ou permissões, você pode tentar [criar um workspace do Azure Databricks de forma interativa no portal do Azure](https://learn.microsoft.com/azure/databricks/getting-started/#--create-an-azure-databricks-workspace).
 
-1. Em um navegador da web, entre no [portal da Azure](https://portal.azure.com) em `https://portal.azure.com`.
+1. Em um navegador da web, faça logon no [portal do Azure](https://portal.azure.com) em `https://portal.azure.com`.
 2. Use o botão **[\>_]** à direita da barra de pesquisa na parte superior da página para criar um Cloud Shell no portal do Azure, selecionando um ambiente ***PowerShell*** e criando um armazenamento caso solicitado. O Cloud Shell fornece uma interface de linha de comando em um painel na parte inferior do portal do Azure, conforme mostrado aqui:
 
     ![Portal do Azure com um painel do Cloud Shell](./images/cloud-shell.png)
@@ -76,9 +76,9 @@ Como em muitos ambientes do Spark, o Databricks oferece suporte ao uso de notebo
 1. Faça o download do arquivo [**products.csv**](https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/products.csv) de `https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/products.csv` para o computador local, salvando-o como **products.csv**.
 1. 1. Na barra lateral, no menu de link **(+) Novo**, selecione **Upload de arquivo**.
 1. Carregue o arquivo **products.csv** que você baixou no computador.
-1. Na página **Criar ou modificar a tabela do upload de arquivo**, certifique-se de que o cluster esteja selecionado na parte superior direita da página. Em seguida, escolha o catálogo **hive_metastore** e seu esquema padrão para criar uma nova tabela chamada **produtos**.
-1. Na página **Gerenciador de Catálogo**, quando a página de **produtos** tiver sido criada, no menu de botão **Criar**, selecione **Notebook** para criar um bloco de anotações.
-1. No notebook, certifique-se de que o notebook esteja conectado ao cluster e examine o código que foi adicionado automaticamente à primeira célula; que deve ser semelhante a este:
+1. Na página **Criar ou modificar a tabela do upload de arquivo**, verifique se o cluster está selecionado na parte superior direita da página. Em seguida, escolha o catálogo **hive_metastore** e seu esquema padrão para criar uma nova tabela chamada **produtos**.
+1. Na página **Gerenciador de catálogo**, quando a página de **produtos** estiver criada, no menu de botão **Criar**, selecione **Notebook** para criar um bloco de anotações.
+1. No notebook, confirme se ele está conectado ao cluster e revise o código que foi adicionado automaticamente à primeira célula; que deve ser semelhante a este:
 
     ```python
     %sql
@@ -98,9 +98,9 @@ Como em muitos ambientes do Spark, o Databricks oferece suporte ao uso de notebo
 
 ## Analisar dados com um dataframe
 
-Embora a maioria das análises de dados estejam confortáveis usando código SQL, conforme usado no exemplo anterior, alguns analistas de dados e cientistas de dados podem usar objetos spark nativos, como um *dataframe* em linguagens de programação como *PySpark* (uma versão do Python otimizada para Spark) para trabalhar com eficiência com os dados.
+Embora a maioria dos analistas de dados se sinta confortável usando código SQL, conforme usado no exemplo anterior, alguns analistas e cientistas de dados podem usar objetos spark nativos, como um *dataframe* em linguagens de programação como *PySpark* (uma versão do Python otimizada para Spark) para trabalhar com os dados de forma eficiente.
 
-1. No notebook, na saída do gráfico da célula de código de execução anterior, use o ícone **+** para adicionar uma nova célula.
+1. No notebook, abaixo do gráfico resultando da célula de código executada anteriormente, use o ícone **+** para adicionar uma nova célula.
 1. Entre e insira o seguinte código na nova célula:
 
     ```python

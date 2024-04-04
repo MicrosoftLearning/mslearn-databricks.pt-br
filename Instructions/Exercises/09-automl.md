@@ -17,9 +17,9 @@ Este exercício deve levar aproximadamente **30** minutos para ser concluído.
 
 > **Observação**: Para este exercício, você precisa de um workspace do Azure Databricks **Premium** em uma região em que a *veiculação de modelos* seja suportada. Consulte as [regiões do Azure Databricks](https://learn.microsoft.com/azure/databricks/resources/supported-regions) para obter detalhes sobre os recursos regionais do Azure Databricks. Se você já possui um workspace do Azure Databricks *Premium* ou de *Avaliação* em uma região adequada, poderá ignorar esse procedimento e usar o workspace existente.
 
-Este exercício inclui um script para provisionar um novo workspace do Azure Databricks. O script tenta criar um recurso de workspace do Azure Databricks de camada *Premium* em uma região na qual sua assinatura do Azure tenha cota suficiente para os núcleos de computação exigidos neste exercício; e pressupõe que sua conta de usuário tenha permissões suficientes na assinatura para criar um recurso de workspace do Azure Databricks. Se o script falhar devido a cota ou permissões insuficientes, você pode tentar criar um workspace do Azure Databricks interativamente no portal do Azure.
+Este exercício inclui um script para provisionar um novo workspace do Azure Databricks. O script tenta criar um recurso de workspace do Azure Databricks de camada *Premium* em uma região na qual sua assinatura do Azure tenha cota suficiente para os núcleos de computação necessários para este exercício; e pressupõe que sua conta de usuário tenha permissões suficientes na assinatura para criar um recurso de workspace do Azure Databricks. Se o script falhar devido a cota ou permissões insuficientes, você pode tentar [criar um workspace do Azure Databricks interativamente no portal do Azure](https://learn.microsoft.com/azure/databricks/getting-started/#--create-an-azure-databricks-workspace).
 
-1. Em um navegador da web, entre no [portal da Azure](https://portal.azure.com) em `https://portal.azure.com`.
+1. Em um navegador da web, faça logon no [portal do Azure](https://portal.azure.com) em `https://portal.azure.com`.
 2. Use o botão **[\>_]** à direita da barra de pesquisa na parte superior da página para criar um Cloud Shell no portal do Azure, selecionando um ambiente ***PowerShell*** e criando um armazenamento caso solicitado. O Cloud Shell fornece uma interface de linha de comando em um painel na parte inferior do portal do Azure, conforme mostrado aqui:
 
     ![Portal do Azure com um painel do Cloud Shell](./images/cloud-shell.png)
@@ -35,7 +35,7 @@ Este exercício inclui um script para provisionar um novo workspace do Azure Da
     git clone https://github.com/MicrosoftLearning/mslearn-databricks
     ```
 
-5. Depois que o repositório tiver sido clonado, digite o seguinte comando para executar o **setup.ps1** do script, que provisiona um workspace do Azure Databricks em uma região disponível:
+5. Depois que o repositório tiver sido clonado, insira o seguinte comando para executar **setup.ps1** do script, que provisiona um workspace do Azure Databricks em uma região disponível:
 
     ```
     ./mslearn-databricks/setup.ps1
@@ -50,25 +50,25 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
 
 > **Dica**: Se você já tiver um cluster com uma versão de runtime 13.3 LTS **<u>ML</u>** ou superior em seu workspace do Azure Databricks, poderá usá-lo para concluir este exercício e ignorar este procedimento.
 
-1. No portal do Azure, navegue até o grupo de recursos **msl-*xxxxxxx*** criado pelo script (ou o grupo de recursos que contém seu workspace do Azure Databricks)
+1. No portal do Azure, navegue até o grupo de recursos **msl-*xxxxxxx*** criado pelo script (ou o grupo de recursos que contém seu workspace do Azure Databricks existente)
 1. Selecione o recurso Serviço do Azure Databricks (chamado **databricks-*xxxxxxx*** se você usou o script de instalação para criá-lo).
 1. Na página **Visão geral** do seu workspace, use o botão **Iniciar workspace** para abrir seu workspace do Azure Databricks em uma nova guia do navegador, fazendo o logon se solicitado.
 
     > **Dica**: ao usar o portal do workspace do Databricks, várias dicas e notificações podem ser exibidas. Dispense-as e siga as instruções fornecidas para concluir as tarefas neste exercício.
 
-1. Na barra lateral à esquerda, selecione **(+) Novo** tarefa e, em seguida, selecione **Cluster**.
+1. Na barra lateral à esquerda, selecione a tarefa **(+) Novo** e, em seguida, selecione **Cluster**.
 1. Na página **Novo Cluster**, crie um novo cluster com as seguintes configurações:
     - **Nome do cluster**: cluster *Nome do Usuário* (o nome do cluster padrão)
     - **Política**: Sem restrições
     - **Modo de cluster**: Nó Único
     - **Modo de acesso**: Usuário único (*com sua conta de usuário selecionada*)
-    - **Versão do runtime do Databricks**: *Selecione a edição **<u>ML</u>** da última versão não beta do runtime (**Não ** uma versão de runtime Standard) que:*
+    - **Versão do runtime do Databricks**: *Selecione a edição do **<u>ML</u>** da última versão não beta do runtime (**Não** uma versão de runtime Standard) que:*
         - ***Não** usa uma GPU*
         - *Inclui o Scala > **2.11***
         - *Inclui o Spark > **3.4***
-    - **Usa a Aceleração de Fótons**: <u>Não</u> selecionado
+    - **Usa a Aceleração do Photon**: <u>Não</u> selecionado
     - **Tipo de nó**: Standard_DS3_v2
-    - **Encerrar após** *20* **minutos de inatividade**
+    - **Encerra após** *20* **minutos de inatividade**
 
 1. Aguarde a criação do cluster. Isso pode levar alguns minutos.
 
