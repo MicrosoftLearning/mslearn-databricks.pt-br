@@ -13,11 +13,11 @@ Este exercício deve levar aproximadamente **30** minutos para ser concluído.
 
 ## Provisionar um workspace do Azure Databricks
 
-> **Dica**: Se você já possui um workspace do Azure Databricks, pode ignorar esse procedimento e usar o workspace existente.
+> **Dica**: Se você já tem um workspace do Azure Databricks, pode ignorar esse procedimento e usar o workspace existente.
 
-Este exercício inclui um script para provisionar um novo workspace do Azure Databricks. O script tenta criar um recurso de espaço de trabalho do Azure Databricks de camada *Premium* em uma região na qual sua assinatura do Azure tenha cota suficiente para os núcleos de computação exigidos neste exercício; e pressupõe que sua conta de usuário tenha permissões suficientes na assinatura para criar um recurso de workspace do Azure Databricks. Se o script falhar devido a cota ou permissões insuficientes, você pode tentar criar um workspace do Azure Databricks interativamente no portal do Azure.
+Este exercício inclui um script para provisionar um novo workspace do Azure Databricks. O script tenta criar um recurso de workspace do Azure Databricks de camada *Premium* em uma região na qual sua assinatura do Azure tenha cota suficiente para os núcleos de computação necessários para este exercício; e pressupõe que sua conta de usuário tenha permissões suficientes na assinatura para criar um recurso de workspace do Azure Databricks. Se o script falhar devido a cota insuficiente ou permissões, você pode tentar [criar um workspace do Azure Databricks de forma interativa no portal do Azure](https://learn.microsoft.com/azure/databricks/getting-started/#--create-an-azure-databricks-workspace).
 
-1. Em um navegador da web, entre no [portal da Azure](https://portal.azure.com) em `https://portal.azure.com`.
+1. Em um navegador da web, faça logon no [portal do Azure](https://portal.azure.com) em `https://portal.azure.com`.
 2. Use o botão **[\>_]** à direita da barra de pesquisa na parte superior da página para criar um Cloud Shell no portal do Azure, selecionando um ambiente ***PowerShell*** e criando um armazenamento caso solicitado. O Cloud Shell fornece uma interface de linha de comando em um painel na parte inferior do portal do Azure, conforme mostrado aqui:
 
     ![Portal do Azure com um painel do Cloud Shell](./images/cloud-shell.png)
@@ -33,7 +33,7 @@ Este exercício inclui um script para provisionar um novo workspace do Azure Da
     git clone https://github.com/MicrosoftLearning/mslearn-databricks
     ```
 
-5. Depois que o repositório tiver sido clonado, digite o seguinte comando para executar **setup.ps1** do script, que provisiona um workspace do Azure Databricks em uma região disponível:
+5. Depois que o repositório tiver sido clonado, insira o seguinte comando para executar **setup.ps1** do script, que provisiona um workspace do Azure Databricks em uma região disponível:
 
     ```
     ./mslearn-databricks/setup.ps1
@@ -63,43 +63,30 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
     - **Versão do runtime do Databricks**: 13.3 LTS (Spark 3.4.1, Scala 2.12) ou posterior
     - **Usar Aceleração do Photon**: Selecionado
     - **Tipo de nó**: Standard_DS3_v2
-    - **Encerrar após** *20* **minutos de inatividade**
+    - **Encerra após** *20* **minutos de inatividade**
 
 1. Aguarde a criação do cluster. Isso pode levar alguns minutos.
 
 > **Observação**: se o cluster não for iniciado, sua assinatura pode ter cota insuficiente na região onde seu workspace do Azure Databricks está provisionado. Consulte [Limite de núcleo da CPU impede a criação do cluster](https://docs.microsoft.com/azure/databricks/kb/clusters/azure-core-limit) para obter detalhes. Se isso acontecer, você pode tentar excluir seu workspace e criar um novo workspace em uma região diferente. Você pode especificar uma região como um parâmetro para o script de instalação da seguinte maneira: `./mslearn-databricks/setup.ps1 eastus`
 
-## Usar o Spark para analisar um arquivo de dados
+## Usar o Spark para analisar dados
 
 Como em muitos ambientes do Spark, o Databricks oferece suporte ao uso de notebooks para combinar anotações e células de código interativo que você pode usar para explorar dados.
 
-1. Na barra lateral, use o link **(+) Novo** para criar um **Notebook**.
-1. Altere o nome padrão do notebook (**Notebook sem título *[date]***) para **Explorar produtos** e, na lista suspensa **Conectar**, selecione seu cluster se ainda não estiver selecionado. Se o cluster não executar, é porque ele pode levar cerca de um minuto para iniciar.
-1. Faça o download do arquivo [**products.csv**](https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/products.csv) de `https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/products.csv` para o computador local, salvando-o como **products.csv**. Em seguida, no notebook **Explorar produtos**, no menu **Arquivo**, selecione **Carregar dados para DBFS**.
-1. Na caixa de diálogo **Carregar Dados**, observe o **Diretório de Destino DBFS** para onde o arquivo será carregado. Em seguida, selecione a área **Arquivos** e carregue o arquivo **products.csv** que você baixou para o seu computador. Quando o arquivo tiver sido carregado, selecione **Avançar**
-1. No painel **Acessar arquivos de notebooks**, selecione o código PySpark de exemplo e copie-o para a área de transferência. Você o usará para carregar os dados do arquivo em um DataFrame. Em seguida, selecione **Concluído**.
-1. No notebook **Explorar produtos**, na célula de código vazia, cole o código copiado, que deve ser semelhante a este:
+1. Faça o download do arquivo [**products.csv**](https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/products.csv) de `https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/products.csv` para o computador local, salvando-o como **products.csv**.
+1. 1. Na barra lateral, no menu de link **(+) Novo**, selecione **Upload de arquivo**.
+1. Carregue o arquivo **products.csv** que você baixou no computador.
+1. Na página **Criar ou modificar a tabela do upload de arquivo**, verifique se o cluster está selecionado na parte superior direita da página. Em seguida, escolha o catálogo **hive_metastore** e seu esquema padrão para criar uma nova tabela chamada **produtos**.
+1. Na página **Gerenciador de catálogo**, quando a página de **produtos** estiver criada, no menu de botão **Criar**, selecione **Notebook** para criar um bloco de anotações.
+1. No notebook, confirme se ele está conectado ao cluster e revise o código que foi adicionado automaticamente à primeira célula; que deve ser semelhante a este:
 
     ```python
-    df1 = spark.read.format("csv").option("header", "true").load("dbfs:/FileStore/shared_uploads/user@outlook.com/products.csv")
+    %sql
+    SELECT * FROM `hive_metastore`.`default`.`products`;
     ```
 
-1. Use a opção do menu **▸ Executar Célula** no canto superior direito da célula para executá-la, iniciando e anexando o cluster, se solicitado.
-1. Aguarde até que o trabalho do Spark executado pelo código seja concluído. O código criou um objeto de *dataframe* chamado **df1** a partir dos dados no arquivo carregado.
-1. Na célula de código existente, use o ícone **+** para adicionar uma nova célula de código. Em seguida, na nova célula, insira o código a seguir:
-
-    ```python
-   display(df1)
-    ```
-
-1. Use a opção de menu **▸ Executar Célula** no canto superior direito da nova célula para executá-la. Esse código exibe o conteúdo do dataframe, que deve ser semelhante a este:
-
-    | ProductID | ProductName | Categoria | ListPrice |
-    | -- | -- | -- | -- |
-    | 771 | Mountain-100 Silver, 38 | Mountain bikes | 3399.9900 |
-    | 772 | Mountain-100 Silver, 42 | Mountain bikes | 3399.9900 |
-    | ... | ... | ... | ... |
-
+1. Use a opção de menu **&#9656; Executar célula** à esquerda da célula para executá-la, iniciando e anexando o cluster, se solicitado.
+1. Aguarde até que o trabalho do Spark executado pelo código seja concluído. O código recupera dados da tabela que foi criada com base no arquivo que você carregou.
 1. Acima da tabela de resultados, selecione **+** e, em seguida, selecione **Visualização** para exibir o editor de visualização e aplique as seguintes opções:
     - **Tipo de visualização**: Barra
     - **Coluna X**: Categoria
@@ -109,31 +96,22 @@ Como em muitos ambientes do Spark, o Databricks oferece suporte ao uso de notebo
 
     ![Um gráfico de barras mostrando contagens de produtos por categoria](./images/databricks-chart.png)
 
-## Criar e consultar uma tabela
+## Analisar dados com um dataframe
 
-Embora muitas análises de dados se sintam confortáveis em usar linguagens como Python ou Scala para trabalhar com dados em arquivos, muitas soluções de análise de dados são construídas em bancos de dados relacionais; em que os dados são armazenados em tabelas e manipulados usando SQL.
+Embora a maioria dos analistas de dados se sinta confortável usando código SQL, conforme usado no exemplo anterior, alguns analistas e cientistas de dados podem usar objetos spark nativos, como um *dataframe* em linguagens de programação como *PySpark* (uma versão do Python otimizada para Spark) para trabalhar com os dados de forma eficiente.
 
-1. No notebook **Explorar produtos**, na saída do gráfico da célula de código executada anteriormente, use o ícone **+** para adicionar uma nova célula.
-2. Entre e insira o seguinte código na nova célula:
+1. No notebook, abaixo do gráfico resultando da célula de código executada anteriormente, use o ícone **+** para adicionar uma nova célula.
+1. Entre e insira o seguinte código na nova célula:
 
     ```python
-   df1.write.saveAsTable("products")
+    df = spark.sql("SELECT * FROM products")
+    df = df.filter("Category == 'Road Bikes'")
+    display(df)
     ```
 
-3. Quando a célula tiver sido concluída, adicione uma nova célula sob ela com o seguinte código:
+1. Execute a nova célula, que retorna produtos na categoria *Bicicletas de estrada*.
 
-    ```sql
-   %sql
-
-   SELECT ProductName, ListPrice
-   FROM products
-   WHERE Category = 'Touring Bikes';
-    ```
-
-4. Execute a nova célula, que contém código SQL para retornar o nome e o preço dos produtos na categoria *Bicicletas de passeio*.
-5. Na barra lateral, selecione o link **Catálogo** e verifique que a tabela de **produtos** foi criada no esquema de banco de dados padrão (apropriadamente chamado de **padrão**). É possível usar o código do Spark para criar esquemas de banco de dados personalizados e um esquema de tabelas relacionais que os analistas de dados podem usar para explorar dados e gerar relatórios analíticos.
-
-## Limpeza
+## Limpar
 
 No portal do Azure Databricks, na página **Computação**, selecione seu cluster e selecione **&#9632; Terminar** para encerrar o processo.
 

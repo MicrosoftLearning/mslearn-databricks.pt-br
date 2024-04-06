@@ -13,9 +13,9 @@ Este laboratório levará aproximadamente **40** minutos para ser concluído.
 
 > **Dica**: Se você já tem um workspace do Azure Databricks, pode ignorar esse procedimento e usar o workspace existente.
 
-Este exercício inclui um script para provisionar um novo workspace do Azure Databricks. O script tenta criar um recurso de espaço de trabalho do Azure Databricks de camada *Premium* em uma região na qual sua assinatura do Azure tenha cota suficiente para os núcleos de computação exigidos neste exercício; e pressupõe que sua conta de usuário tenha permissões suficientes na assinatura para criar um recurso de workspace do Azure Databricks. Se o script falhar devido a cota ou permissões insuficientes, você pode tentar criar um workspace do Azure Databricks interativamente no portal do Azure.
+Este exercício inclui um script para provisionar um novo workspace do Azure Databricks. O script tenta criar um recurso de workspace do Azure Databricks de camada *Premium* em uma região na qual sua assinatura do Azure tenha cota suficiente para os núcleos de computação necessários para este exercício; e pressupõe que sua conta de usuário tenha permissões suficientes na assinatura para criar um recurso de workspace do Azure Databricks. Se o script falhar devido a cota ou permissões insuficientes, você pode tentar [criar um workspace do Azure Databricks interativamente no portal do Azure](https://learn.microsoft.com/azure/databricks/getting-started/#--create-an-azure-databricks-workspace).
 
-1. Em um navegador da web, entre no [portal da Azure](https://portal.azure.com) em `https://portal.azure.com`.
+1. Em um navegador da web, faça logon no [portal do Azure](https://portal.azure.com) em `https://portal.azure.com`.
 2. Use o botão **[\>_]** à direita da barra de pesquisa na parte superior da página para criar um Cloud Shell no portal do Azure, selecionando um ambiente ***PowerShell*** e criando um armazenamento caso solicitado. O Cloud Shell fornece uma interface de linha de comando em um painel na parte inferior do portal do Azure, conforme mostrado aqui:
 
     ![Portal do Azure com um painel do Cloud Shell](./images/cloud-shell.png)
@@ -31,7 +31,7 @@ Este exercício inclui um script para provisionar um novo workspace do Azure Da
     git clone https://github.com/MicrosoftLearning/mslearn-databricks
     ```
 
-5. Depois que o repositório tiver sido clonado, digite o seguinte comando para executar **setup.ps1** do script, que provisiona um workspace do Azure Databricks em uma região disponível:
+5. Depois que o repositório tiver sido clonado, insira o seguinte comando para executar **setup.ps1** do script, que provisiona um workspace do Azure Databricks em uma região disponível:
 
     ```powershell
     ./mslearn-databricks/setup.ps1
@@ -61,7 +61,7 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
     - **Versão do runtime do Databricks**: 13.3 LTS (Spark 3.4.1, Scala 2.12) ou posterior
     - **Usar Aceleração do Photon**: Selecionado
     - **Tipo de nó**: Standard_DS3_v2
-    - **Encerrar após** *20* **minutos de inatividade**
+    - **Encerra após** *20* **minutos de inatividade**
 
 1. Aguarde a criação do cluster. Isso pode levar alguns minutos.
 
@@ -73,7 +73,7 @@ Agora, vamos criar um notebook Spark e importar os dados com os quais trabalhare
 
 1. Na barra lateral, use o link **(+) Novo** para criar um **Notebook**.
 1. Altere o nome padrão do notebook (**Notebook Sem Título *[data]***) para **Explorar o Delta Lake**. Na lista suspensa **Conectar**, selecione o cluster, caso ainda não esteja selecionado. Se o cluster não executar, é porque ele pode levar cerca de um minuto para iniciar.
-1. Na primeira célula do notebook, insira o código a seguir, que usa comandos *shell* para baixar os arquivos de dados do GitHub no sistema de arquivos do Databricks (DBFS) usado pelo cluster.
+1. Na primeira célula do notebook, insira o código a seguir, que usa os comandos de *shell* para baixar os arquivos de dados do GitHub para o sistema de arquivos usado pelo cluster.
 
     ```python
     %sh
@@ -82,7 +82,7 @@ Agora, vamos criar um notebook Spark e importar os dados com os quais trabalhare
     wget -O /dbfs/delta_lab/products.csv https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/products.csv
     ```
 
-1. Use a opção de menu **&#9656; Executar Célula** no canto superior direito da célula seguinte para executá-la. Em seguida, aguarde o término do trabalho do Spark executado pelo código.
+1. Use a opção de menu **&#9656; Executar Célula** à esquerda da célula para executá-la. Em seguida, aguarde o término do trabalho do Spark executado pelo código.
 1. Na célula de código existente, use o ícone **+** para adicionar uma nova célula de código. Então, na nova célula, insira e execute o código a seguir para carregar os dados do arquivo e exibir as primeiras 10 linhas.
 
     ```python
@@ -156,8 +156,8 @@ As modificações de dados são registradas em log, permitindo que você use as 
 
 Até agora, você trabalhou com tabelas Delta carregando dados da pasta que contém os arquivos parquet nos quais a tabela se baseia. Você pode definir *tabelas de catálogo* que encapsulam os dados e fornecem uma entidade de tabela nomeada que você pode referenciar no código SQL. O Spark é compatível com dois tipos de tabelas de catálogo para o Delta Lake:
 
-- Tabelas *externas*, que são definidas pelo caminho para os arquivos parquet que contêm os dados da tabela.
-- As tabelas *gerenciadas* e são definidas no metastore do Hive para o cluster Spark.
+- Tabelas *externas* definidas pelo caminho para os arquivos que contêm os dados da tabela.
+- As tabelas *gerenciadas*, que são definidas no metastore.
 
 ### Criar uma tabela externa
 
@@ -188,7 +188,7 @@ Até agora, você trabalhou com tabelas Delta carregando dados da pasta que cont
    spark.sql("DESCRIBE EXTENDED AdventureWorks.ProductsManaged").show(truncate=False)
     ```
 
-    Você não especificou um caminho para os arquivos parquet usados pela tabela – ele é gerenciado para você no metastore do Hive e mostrado na propriedade **Localização** na descrição da tabela (no caminho **dbfs:/user/hive/warehouse/** ).
+    Você não especificou um caminho para os arquivos parquet usados pela tabela – ele é gerenciado para você no metastore do Hive e mostrado na propriedade **Localização** na descrição da tabela.
 
 1. Use o seguinte código para consultar a tabela gerenciada, observando que a sintaxe é igual a uma tabela gerenciada:
 

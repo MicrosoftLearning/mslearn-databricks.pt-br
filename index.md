@@ -13,5 +13,5 @@ Esses exercícios foram projetados para dar suporte ao seguinte conteúdo de tre
 
 Você precisará de uma assinatura do Azure na qual tenha acesso administrativo para concluir esses exercícios.
 
-{% assign exercises = site.pages | where_exp:"page", "page.url contains '/Instructions/Exercises'" %} {% for activity in exercises  %}
+{% atribuir exercícios = site.pages | where_exp:"page", "page.url contém '/Instructions/Exercises'" %} {% para atividade em exercícios %}
 - [{{ activity.lab.title }}]({{ site.github.url }}{{ activity.url }}) | {% endfor %}
