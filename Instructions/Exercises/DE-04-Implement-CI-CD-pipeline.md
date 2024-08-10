@@ -1,9 +1,9 @@
 ---
 lab:
-  title: Implementar pipelines de CI/CD com o Azure Databricks e o Azure DevOps ou o Azure Databricks e o GitHub
+  title: Implementar fluxos de trabalho de CI/CD com o Azure Databricks
 ---
 
-# Implementar pipelines de CI/CD com o Azure Databricks e o Azure DevOps ou o Azure Databricks e o GitHub
+# Implementar fluxos de trabalho de CI/CD com o Azure Databricks
 
 A implementação de pipelines de CI (Integração Contínua) e CD (Implantação Contínua) com o Azure Databricks e o Azure DevOps ou o Azure Databricks e o GitHub envolve a configuração de uma série de etapas automatizadas para garantir que as alterações de código sejam integradas, testadas e implantadas de modo eficiente. O processo normalmente inclui a conexão com um repositório Git, a execução de trabalhos usando o Azure Pipelines para compilar e testar o código, e implantar os artefatos de build para uso em notebooks do Databricks. Esse fluxo de trabalho permite um ciclo de desenvolvimento robusto, possibilitando a integração e a entrega contínuas alinhadas com as práticas modernas de DevOps.
 
@@ -143,17 +143,22 @@ steps:
   displayName: 'Install Databricks CLI'
 
 - script: |
-    databricks fs cp dbfs:/FileStore/sample_sales.csv .
-  displayName: 'Download Sample Data from DBFS'
+    databricks configure --token <<EOF
+    <your-databricks-host>
+    <your-databricks-token>
+    EOF
+  displayName: 'Configure Databricks CLI'
 
 - script: |
-    python -m unittest discover -s tests
-  displayName: 'Run Unit Tests'
+    databricks fs cp dbfs:/FileStore/sample_sales.csv . --overwrite
+  displayName: 'Download Sample Data from DBFS'
 ```
 
-4. Selecione **Salvar e executar**.
+4. Substitua `<your-databricks-host>` e `<your-databricks-token>` pelo URL e pelo token do host do Databricks. Isso configurará a CLI do Databricks antes de tentar usá-la.
 
-Esse arquivo YAML configurará um pipeline de CI que é acionado por alterações na ramificação `main` do repositório. O pipeline configura um ambiente do Python, instala a CLI do Databricks, baixa os dados de exemplo para workspace do Databricks e executa testes de unidade do Python. Essa é uma configuração comum para fluxos de trabalho de CI.
+5. Selecione **Salvar e executar**.
+
+Esse arquivo YAML configurará um pipeline de CI que é acionado por alterações na ramificação `main` do repositório. O pipeline configura um ambiente do Python, instala a CLI do Databricks e baixa os dados de exemplo do seu workspace do Databricks. Essa é uma configuração comum para fluxos de trabalho de CI.
 
 ## Configurar um pipeline de CD
 
@@ -179,6 +184,13 @@ stages:
     - script: |
         pip install databricks-cli
       displayName: 'Install Databricks CLI'
+
+    - script: |
+        databricks configure --token <<EOF
+        <your-databricks-host>
+        <your-databricks-token>
+        EOF
+      displayName: 'Configure Databricks CLI'
 
     - script: |
         databricks workspace import_dir /path/to/notebooks /Workspace/Notebooks
