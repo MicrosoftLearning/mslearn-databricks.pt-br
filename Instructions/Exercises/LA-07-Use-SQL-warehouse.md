@@ -66,54 +66,41 @@ Este exercício inclui um script para provisionar um novo workspace do Azure Da
     ```
 
 4. Use o botão **►Executar (1000)** para executar o código SQL.
-5. Quando o código tiver sido executado com êxito, no painel **Navegador de esquema**, use o botão Atualizar na parte inferior do painel para atualizar a lista. Em seguida, expanda **hive_metastore** e **retail_db** e observe se o banco de dados foi criado, mas não contém tabelas.
+5. Quando o código tiver sido executado com êxito, no painel **Navegador de esquema** use o botão Atualizar na parte superior do painel para atualizar a lista. Em seguida, expanda **hive_metastore** e **retail_db** e observe se o banco de dados foi criado, mas não contém tabelas.
 
 Você pode usar o banco de dados **padrão** para suas tabelas, mas ao criar um armazenamento de dados analíticos é melhor criar bancos de dados personalizados para dados específicos.
 
 ## Criar uma tabela
 
 1. Baixe o arquivo [**products.csv**](https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/products.csv) para o computador local, salvando-o como **products.csv**.
-1. No portal do workspace do Azure Databricks, na barra lateral, selecione **(+) Novo** e, em seguida, selecione **Upload de Arquivos** e carregue o arquivo **products.csv** que você baixou para o seu computador.
-1. Na página **Carregar dados**, selecione o esquema **retail_db** e defina o nome da tabela como **produtos**. Em seguida, selecione **Criar tabela** no canto inferior esquerdo da página.
+1. No portal de workspace do Azure Databricks, na barra lateral, selecione **(+) Novo** e, em seguida, selecione **Dados**.
+1. Na página **Adicionar dados** selecione **Criar ou modificar tabela** e carregue o arquivo **products.csv** que você baixou para o seu computador.
+1. Na página **Criar ou modificar uma tabela a partir do upload de arquivo** selecione o esquema **retail_db** e defina o nome da tabela como **produtos**. Em seguida, selecione **Criar tabela** no botão inferior esquerdo da página.
 1. Quando a tabela tiver sido criada, revise seus detalhes.
 
 A capacidade de criar uma tabela importando dados de um arquivo facilita o preenchimento de um banco de dados. Você também pode usar o Spark SQL para criar tabelas usando código. As tabelas em si são definições de metadados no metastore do hive e os dados que elas contêm são armazenados no formato Delta no armazenamento do DBFS (Sistema de Arquivos do Databricks).
 
-## Criar uma consulta
+## Criar um painel
 
-1. Na barra lateral, selecione **(+) Novo** e, em seguida, selecione **Consulta**.
-2. No painel **Navegador de esquema**, expanda **hive_metastore** e **retail_db** e verifique se a tabela **produtos** está listada.
-3. No painel **Nova consulta**, insira o seguinte código SQL:
+1. Na barra lateral, selecione **(+) Novo** e, em seguida, selecione **Painel**.
+2. Selecione o nome do novo painel e altere-o para **Painel de varejo**.
+3. Na guia **Dados** selecione **Criar a partir do SQL** e use a seguinte consulta:
 
     ```sql
    SELECT ProductID, ProductName, Category
    FROM retail_db.products; 
     ```
 
-4. Use o botão **►Executar (1000)** para executar o código SQL.
-5. Quando a consulta for concluída, revise a tabela de resultados.
-6. Use o botão **Salvar** no canto superior direito do editor de consultas para salvar a consulta como **Produtos e Categorias**.
+4. Selecione **Executar** e renomeie o conjunto de dados sem título para **Produtos e Categorias**.
+5. Selecione a guia **Tela** e em seguida, selecione **Adicionar uma visualização**.
+6. No editor de visualização, defina as seguintes propriedades:
+    
+    - **Conjunto de Dados**: Produtos e Categorias
+    - **Visualização**: barra
+    - **X Eixo**: X: COUNT(ProductID)
+    - **Y eixo**: categoria
 
-Salvar uma consulta facilita a recuperação dos mesmos dados novamente posteriormente.
-
-## Criar um painel
-
-1. Na barra lateral, selecione **(+) Novo** e, em seguida, selecione **Painel**.
-2. Na caixa de diálogo **Novo painel**, insira o nome **Painel de Varejo** e selecione **Salvar**.
-3. No painel **Painel de Varejo**, na lista suspensa **Adicionar**, selecione **Visualização**.
-4. Na caixa de diálogo **Adicionar widget de visualização**, selecione a consulta **Produtos e categorias**. Em seguida, selecione **Criar nova visualização**, defina o título como **Produtos por categoria** e selecione **Criar visualização**.
-5. No editor de visualização, defina as seguintes propriedades:
-    - **Tipo de visualização**: barra
-    - **Gráfico horizontal**: selecionado
-    - **Coluna Y**: Categoria
-    - **Colunas X**: ID do produto (product ID) : contagem
-    - **Agrupar por**: *deixar em branco*
-    - **Empilhamento**: desativado
-    - **Normalizar valores para porcentagem**: <u>não</u> selecionado
-    - **Valores ausentes e NULL**: Não são exibidos no gráfico
-
-6. Salve a visualização e visualize-a no painel.
-7. Selecione **Edição concluída** para exibir o painel como os usuários o verão.
+7. Selecione **Publicar** para exibir o painel como os usuários o verão.
 
 Os painéis são uma ótima maneira de compartilhar tabelas de dados e visualizações com usuários corporativos. Você pode agendar os painéis para serem atualizados periodicamente e enviados por e-mail aos assinantes.
 
