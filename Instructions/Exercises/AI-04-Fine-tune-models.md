@@ -1,174 +1,341 @@
-# Exercício 04 – Ajustar modelos de linguagem grande usando o Azure Databricks e o OpenAI do Azure
+---
+lab:
+  title: Ajustar modelos de linguagem grande usando o Azure Databricks e o OpenAI do Azure
+---
 
-## Objetivo
-Este exercício orientará você pelo processo de ajuste fino de um LLM (modelo de linguagem grande) usando o Azure Databricks e o OpenAI do Azure. Você aprenderá como configurar o ambiente, pré-processar dados e ajustar um LLM em dados personalizados para realizar tarefas específicas de NLP.
+# Ajustar modelos de linguagem grande usando o Azure Databricks e o OpenAI do Azure
 
-## Requisitos
-Uma assinatura ativa do Azure. Se você não tiver uma, poderá se inscrever para uma [avaliação gratuita](https://azure.microsoft.com/en-us/free/).
+Com o Azure Databricks, os usuários agora podem usar o poder dos LLMs para tarefas especializadas ajustando-os com seus próprios dados, melhorando o desempenho específico do domínio. Para ajustar um modelo de linguagem usando o Azure Databricks, você pode utilizar a interface de Treinamento de Modelo de IA do Mosaic, que simplifica o processo de ajuste completo do modelo. Esse recurso permite que você ajuste um modelo com seus dados personalizados, com pontos de verificação salvos no MLflow, garantindo que você mantenha o controle total sobre o modelo ajustado.
 
-## Etapa 1: Provisionar o Azure Databricks
-- Fazer logon no portal do Azure:
-    1. Vá para o portal do Azure e entre com suas credenciais.
-- Criar serviço do Databricks:
-    1. Navegue até "Criar um recurso" > "Análise" > "Azure Databricks".
-    2. Insira os detalhes necessários, como nome do espaço de trabalho, assinatura, grupo de recursos (crie um novo ou selecione um já existente) e local.
-    3. Selecione o tipo de preço (escolha padrão para este laboratório).
-    4. Clique em "Examinar + criar" e "Criar" depois que a validação for aprovada.
+Este laboratório levará aproximadamente **60** minutos para ser concluído.
 
-## Etapa 2: Iniciar o espaço de trabalho e criar um cluster
-- Iniciar o workspace do Databricks:
-    1. Quando a implantação estiver concluída, vá para o recurso e clique em "Iniciar espaço de trabalho".
-- Criar um Cluster do Spark:
-    1. No workspace do Databricks, clique em "Computação" na barra lateral e, em seguida, em "Criar computação".
-    2. Especifique o nome do cluster e selecione uma versão de runtime do Spark.
-    3. Escolha o tipo de trabalhador como "Padrão" e o tipo de nó com base nas opções disponíveis (escolha nós menores para eficiência de custo).
-    4. Clique em "Criar computação".
+## Antes de começar
 
-## Etapa 3: Instalar as bibliotecas necessárias
-- Na guia "Bibliotecas" do seu cluster, clique em "Instalar novo".
-- Instale os seguintes pacotes do Python:
-    1. transformers
-    2. conjuntos de dados
-    3. azure-ai-openai
-- Opcionalmente, você também pode instalar quaisquer outros pacotes necessários, como torch.
+É necessário ter uma [assinatura do Azure](https://azure.microsoft.com/free) com acesso de nível administrativo.
 
-### Criar novo notebook
-- Vá para a seção "Espaço de trabalho" e clique em "Criar" > "Notebook".
-- Nomeie seu notebook (por exemplo, Ajuste-Fino-GPT4) e escolha Python como a linguagem padrão.
-- Anexe o notebook ao seu cluster.
+## Provisionar um recurso de OpenAI do Azure
 
-## Etapa 4 – Preparar o conjunto de dados
+Se ainda não tiver um, provisione um recurso OpenAI do Azure na sua assinatura do Azure.
 
-- Carregar o conjunto de dados
-    1. Você pode usar qualquer conjunto de dados de texto adequado para sua tarefa de ajuste fino. Por exemplo, vamos usar o conjunto de dados do IMDB para análise de sentimento.
-    2. Em seu notebook, execute o código a seguir para carregar o conjunto de dados
+1. Entre no **portal do Azure** em `https://portal.azure.com`.
+2. Crie um recurso do **OpenAI do Azure** com as seguintes configurações:
+    - **Assinatura**: *Selecione uma assinatura do Azure que tenha sido aprovada para acesso ao serviço Azure OpenAI*
+    - **Grupo de recursos**: *escolher ou criar um grupo de recursos*
+    - **Região**: *faça uma escolha **aleatória** de uma das regiões a seguir*\*
+        - Leste dos EUA 2
+        - Centro-Norte dos EUA
+        - Suécia Central
+        - Oeste da Suíça
+    - **Nome**: *um nome exclusivo de sua preferência*
+    - **Tipo de preço**: Standard S0
 
-    ```python
-    from datasets import load_dataset
+> \* Os recursos do OpenAI do Azure são restritos por cotas regionais. As regiões listadas incluem a cota padrão para os tipos de modelos usados neste exercício. A escolha aleatória de uma região reduz o risco de uma só região atingir o limite de cota em cenários nos quais você compartilha uma assinatura com outros usuários. No caso de um limite de cota ser atingido mais adiante no exercício, há a possibilidade de você precisar criar outro recurso em uma região diferente.
 
-    dataset = load_dataset("imdb")
-    ```
+3. Aguarde o fim da implantação. Em seguida, vá para o recurso OpenAI do Azure implantado no portal do Azure.
 
-- Pré-processar o conjunto de dados
-    1. Tokenize os dados de texto usando o tokenizador da biblioteca de transformadores.
-    2. No seu notebook, adicione o código a seguir:
+4. No painel esquerdo, em **Gerenciamento de recursos**, selecione **Chaves e Ponto de Extremidade**.
 
-    ```python
-    from transformers import GPT2Tokenizer
+5. Copie o ponto de extremidade e uma das chaves disponíveis para usar posteriormente neste exercício.
 
-    tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+6. Inicie o Cloud Shell e execute `az account get-access-token` para receber um token de autorização temporário para teste de API. Mantenha-o junto com o ponto de extremidade e a chave copiados anteriormente.
 
-    def tokenize_function(examples):
-        return tokenizer(examples["text"], padding="max_length", truncation=True)
+## Implantar o modelo necessário
 
-    tokenized_datasets = dataset.map(tokenize_function, batched=True)
-    ```
+O Azure fornece um portal baseado na Web chamado **Estúdio de IA do Azure**, que você pode usar para implantar, gerenciar e explorar modelos. Você iniciará sua exploração do OpenAI do Azure usando o Estúdio de IA do Azure para implantar um modelo.
 
-- Preparar dados para ajuste fino
-    1. Divida os dados em conjuntos de treinamento e validação.
-    2. Em seu notebook, adicione:
+> **Observação**: À medida que você usa o Estúdio de IA do Azure, podem ser exibidas caixas de mensagens sugerindo tarefas para você executar. Você pode fechá-los e seguir as etapas desse exercício.
 
-    ```python
-    small_train_dataset = tokenized_datasets["train"].shuffle(seed=42).select(range(1000))
-    small_eval_dataset = tokenized_datasets["test"].shuffle(seed=42).select(range(500))
-    ```
+1. No portal do Azure, na página **Visão geral** do recurso OpenAI do Azure, role para baixo até a seção **Introdução** e clique no botão para abrir o **Estúdio de IA do Azure**.
+   
+1. No Estúdio de IA do Azure, no painel à esquerda, selecione a página **Implantações** e visualize as implantações de modelo existentes. Se você ainda não tiver uma implantação, crie uma nova implantação do modelo **gpt-35-turbo** com as seguintes configurações:
+    - **Nome da implantação**: *gpt-35-turbo-0613*
+    - **Modelo**: gpt-35-turbo
+    - **Versão do modelo**: 0613
+    - **Tipo de implantação**: Padrão
+    - **Limite de taxa de tokens por minuto**: 5K\*
+    - **Filtro de conteúdo**: Padrão
+    - **Habilitar cota dinâmica**: Desabilitado
+    
+> \* Um limite de taxa de 5.000 tokens por minuto é mais do que adequado para concluir este exercício, deixando capacidade para outras pessoas que usam a mesma assinatura.
 
-## Etapa 5 – Ajustar o modelo GPT-4
+## Provisionar um workspace do Azure Databricks
 
-- Configurar a API OpenAI
-    1. Você precisará da chave de API e do ponto de extremidade do OpenAI do Azure.
-    2. Em seu notebook, configure as credenciais da API:
+> **Dica**: Se você já tem um workspace do Azure Databricks, pode ignorar esse procedimento e usar o workspace existente.
 
-    ```python
-    import openai
+1. Entre no **portal do Azure** em `https://portal.azure.com`.
+2. Crie um recurso do **Azure Databricks** com as seguintes configurações:
+    - **Assinatura**: *selecione a mesma assinatura do Azure usada para criar o recurso do OpenAI do Azure*
+    - **Grupo de recursos**: *o grupo de recursos em que você criou o recurso do OpenAI do Azure*
+    - **Região**: *a mesma região onde você criou seu recurso do OpenAI do Azure*
+    - **Nome**: *um nome exclusivo de sua preferência*
+    - **Tipo de preço**: *premium* ou *avaliação*
 
-    openai.api_type = "azure"
-    openai.api_key = "YOUR_AZURE_OPENAI_API_KEY"
-    openai.api_base = "YOUR_AZURE_OPENAI_ENDPOINT"
-    openai.api_version = "2023-05-15"
-    ```
-- Ajustar um modelo
-    1. O ajuste fino do GPT-4 é realizado ajustando os hiperparâmetros e continuando o processo de treinamento em seu conjunto de dados específico.
-    2. O ajuste fino pode ser mais complexo e pode exigir dados em lote, personalização de loops de treinamento, etc.
-    3. Use as informações a seguir como um modelo básico:
+3. Selecione **Revisar + criar** e aguarde a conclusão da implantação. Em seguida, vá para o recurso e inicie o workspace.
 
-    ```python
-    from transformers import GPT2LMHeadModel, Trainer, TrainingArguments
+## Criar um cluster
 
-    model = GPT2LMHeadModel.from_pretrained("gpt2")
+O Azure Databricks é uma plataforma de processamento distribuído que usa *clusters* do Apache Spark para processar dados em paralelo em vários nós. Cada cluster consiste em um nó de driver para coordenar o trabalho e nós de trabalho para executar tarefas de processamento. Neste exercício, você criará um cluster de *nó único* para minimizar os recursos de computação usados no ambiente de laboratório (no qual os recursos podem ser restritos). Em um ambiente de produção, você normalmente criaria um cluster com vários nós de trabalho.
 
-    training_args = TrainingArguments(
-        output_dir="./results",
-        evaluation_strategy="epoch",
-        learning_rate=2e-5,
-        per_device_train_batch_size=2,
-        per_device_eval_batch_size=2,
-        num_train_epochs=3,
-        weight_decay=0.01,
+> **Dica**: Se você já tiver um cluster com uma versão de runtime 13.3 LTS **<u>ML</u>** ou superior em seu workspace do Azure Databricks, poderá usá-lo para concluir este exercício e ignorar este procedimento.
+
+1. No portal do Azure, navegue até o grupo de recursos em que o workspace do Azure Databricks foi criado.
+2. Clique no recurso de serviço do Azure Databricks.
+3. Na página **Visão geral** do seu workspace, use o botão **Iniciar workspace** para abrir seu workspace do Azure Databricks em uma nova guia do navegador, fazendo o logon se solicitado.
+
+> **Dica**: ao usar o portal do workspace do Databricks, várias dicas e notificações podem ser exibidas. Dispense-as e siga as instruções fornecidas para concluir as tarefas neste exercício.
+
+4. Na barra lateral à esquerda, selecione a tarefa **(+) Novo** e, em seguida, selecione **Cluster**.
+5. Na página **Novo Cluster**, crie um novo cluster com as seguintes configurações:
+    - **Nome do cluster**: cluster *Nome do Usuário* (o nome do cluster padrão)
+    - **Política**: Sem restrições
+    - **Modo de cluster**: Nó Único
+    - **Modo de acesso**: Usuário único (*com sua conta de usuário selecionada*)
+    - **Versão do runtime do Databricks**: *Selecione a edição do **<u>ML</u>** da última versão não beta do runtime (**Não** uma versão de runtime Standard) que:*
+        - ***Não** usa uma GPU*
+        - *Inclui o Scala > **2.11***
+        - *Inclui o Spark > **3.4***
+    - **Usa a Aceleração do Photon**: <u>Não</u> selecionado
+    - **Tipo de nó**: Standard_DS3_v2
+    - **Encerra após** *20* **minutos de inatividade**
+
+6. Aguarde a criação do cluster. Isso pode levar alguns minutos.
+
+> **Observação**: se o cluster não for iniciado, sua assinatura pode ter cota insuficiente na região onde seu workspace do Azure Databricks está provisionado. Consulte [Limite de núcleo da CPU impede a criação do cluster](https://docs.microsoft.com/azure/databricks/kb/clusters/azure-core-limit) para obter detalhes. Se isso acontecer, você pode tentar excluir seu workspace e criar um novo workspace em uma região diferente.
+
+## Instalar as bibliotecas necessárias
+
+1. Na página do cluster, selecione a guia **Bibliotecas**.
+
+2. Selecione **Instalar novo**.
+
+3. Selecione **PyPI** como a fonte da biblioteca e instale os seguintes pacotes do Python:
+   - `numpy==2.1.0`
+   - `requests==2.32.3`
+   - `openai==1.42.0`
+   - `tiktoken==0.7.0`
+
+## Criar um notebook e ingerir dados
+
+1. Na barra lateral, use o link **(+) Novo** para criar um **Notebook**.
+   
+1. Nomeie seu notebook e, na lista suspensa **Conectar**, selecione o cluster caso ainda não esteja selecionado. Se o cluster não executar, é porque ele pode levar cerca de um minuto para iniciar.
+
+2. Na primeira célula do notebook, insira o código a seguir, que usa os comandos de *shell* para baixar os arquivos de dados do GitHub para o sistema de arquivos usado pelo cluster.
+
+     ```python
+    %sh
+    rm -r /dbfs/fine_tuning
+    mkdir /dbfs/fine_tuning
+    wget -O /dbfs/fine_tuning/training_set.jsonl https://github.com/MicrosoftLearning/mslearn-databricks/raw/main/data/training_set.jsonl
+    wget -O /dbfs/fine_tuning/validation_set.jsonl https://github.com/MicrosoftLearning/mslearn-databricks/raw/main/data/validation_set.jsonl
+     ```
+
+3. Em uma nova célula, execute o seguinte código com as informações de acesso copiadas no início deste exercício para atribuir variáveis de ambiente persistentes para autenticação ao usar recursos do OpenAI do Azure:
+
+     ```python
+    import os
+
+    os.environ["AZURE_OPENAI_API_KEY"] = "your_openai_api_key"
+    os.environ["AZURE_OPENAI_ENDPOINT"] = "your_openai_endpoint"
+    os.environ["TEMP_AUTH_TOKEN"] = "your_access_token"
+     ```
+     
+## Validar contagens de tokens
+
+Ambos `training_set.jsonl` e `validation_set.jsonl` são feitos de diferentes exemplos de conversação entre `user` e `assistant` que servirão como pontos de dados para treinar e validar o modelo ajustado. Exemplos individuais precisam permanecer sob o limite de token de entrada do modelo `gpt-35-turbo` de 4096 tokens.
+
+1. Em uma nova célula, execute o seguinte código para validar as contagens de tokens para cada arquivo:
+
+   ```python
+    import json
+    import tiktoken
+    import numpy as np
+    from collections import defaultdict
+
+    encoding = tiktoken.get_encoding("cl100k_base")
+
+    def num_tokens_from_messages(messages, tokens_per_message=3, tokens_per_name=1):
+        num_tokens = 0
+        for message in messages:
+            num_tokens += tokens_per_message
+            for key, value in message.items():
+                num_tokens += len(encoding.encode(value))
+                if key == "name":
+                    num_tokens += tokens_per_name
+        num_tokens += 3
+        return num_tokens
+
+    def num_assistant_tokens_from_messages(messages):
+        num_tokens = 0
+        for message in messages:
+            if message["role"] == "assistant":
+                num_tokens += len(encoding.encode(message["content"]))
+        return num_tokens
+
+    def print_distribution(values, name):
+        print(f"\n##### Distribution of {name}:")
+        print(f"min / max: {min(values)}, {max(values)}")
+        print(f"mean / median: {np.mean(values)}, {np.median(values)}")
+
+    files = ['/dbfs/fine_tuning/training_set.jsonl', '/dbfs/fine_tuning/validation_set.jsonl']
+
+    for file in files:
+        print(f"File: {file}")
+        with open(file, 'r', encoding='utf-8') as f:
+            dataset = [json.loads(line) for line in f]
+
+        total_tokens = []
+        assistant_tokens = []
+
+        for ex in dataset:
+            messages = ex.get("messages", {})
+            total_tokens.append(num_tokens_from_messages(messages))
+            assistant_tokens.append(num_assistant_tokens_from_messages(messages))
+
+        print_distribution(total_tokens, "total tokens")
+        print_distribution(assistant_tokens, "assistant tokens")
+        print('*' * 75)
+   ```
+
+## Carregar arquivos de ajuste fino no OpenAI do Azure
+
+Antes de começar a ajustar o modelo, você precisa inicializar um cliente OpenAI e adicionar os arquivos de ajuste fino ao respectivo ambiente, gerando IDs de arquivo que serão usadas para inicializar o trabalho.
+
+1. Execute o código a seguir em uma nova célula:
+
+     ```python
+    import os
+    from openai import AzureOpenAI
+
+    client = AzureOpenAI(
+      azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
+      api_key = os.getenv("AZURE_OPENAI_API_KEY"),
+      api_version = "2024-05-01-preview"  # This API version or later is required to access seed/events/checkpoint features
     )
 
-    trainer = Trainer(
-        model=model,
-        args=training_args,
-        train_dataset=small_train_dataset,
-        eval_dataset=small_eval_dataset,
+    training_file_name = '/dbfs/fine_tuning/training_set.jsonl'
+    validation_file_name = '/dbfs/fine_tuning/validation_set.jsonl'
+
+    training_response = client.files.create(
+        file = open(training_file_name, "rb"), purpose="fine-tune"
+    )
+    training_file_id = training_response.id
+
+    validation_response = client.files.create(
+        file = open(validation_file_name, "rb"), purpose="fine-tune"
+    )
+    validation_file_id = validation_response.id
+
+    print("Training file ID:", training_file_id)
+    print("Validation file ID:", validation_file_id)
+     ```
+
+## Enviar trabalho de ajuste fino
+
+Agora que os arquivos de ajuste fino foram carregados, você pode enviar seu trabalho de treinamento de ajuste fino. Não é incomum que o treinamento leve mais de uma hora para ser concluído. Depois que o treinamento for concluído, você poderá ver os resultados no Estúdio de IA do Azure selecionando a opção ** Ajuste fino** no painel esquerdo.
+
+1. Em uma nova célula, execute o seguinte código para iniciar o trabalho de treinamento de ajuste fino:
+
+     ```python
+    response = client.fine_tuning.jobs.create(
+        training_file = training_file_id,
+        validation_file = validation_file_id,
+        model = "gpt-35-turbo-0613",
+        seed = 105 # seed parameter controls reproducibility of the fine-tuning job. If no seed is specified one will be generated automatically.
     )
 
-    trainer.train()
-    ```
-    4. Este código fornece uma estrutura básica para treinamento. Os parâmetros e conjuntos de dados precisariam ser adaptados para casos específicos.
+    job_id = response.id
+     ```
 
-- Monitorar o processo de treinamento
-    1. O Databricks permite monitorar o processo de treinamento por meio da interface do notebook e de ferramentas integradas como o MLflow para acompanhamento.
+O parâmetro `seed` controla a reprodutibilidade do trabalho de ajuste fino. Passar os mesmos parâmetros iniciais e de trabalho deve produzir os mesmos resultados, mas pode diferir em casos raros. Se nenhuma semente for especificada, uma será gerada automaticamente.
 
-## Etapa 6: Avaliar o modelo ajustado
+2. Em uma nova célula, é possível executar o seguinte código para monitorar o status do trabalho de ajuste fino:
 
-- Gerar previsões
-    1. Após o ajuste fino, gere previsões no conjunto de dados de avaliação.
-    2. Em seu notebook, adicione:
+     ```python
+    print("Job ID:", response.id)
+    print("Status:", response.status)
+     ```
 
-    ```python
-    predictions = trainer.predict(small_eval_dataset)
-    print(predictions)
-    ```
+3. Depois que o status do trabalho for alterado para `succeeded`, execute o seguinte código para obter os resultados finais:
 
-- Avaliar desempenho do modelo
-    1. Use métricas como precisão, recall e pontuação F1 para avaliar o modelo.
-    2. Exemplo:
+     ```python
+    response = client.fine_tuning.jobs.retrieve(job_id)
 
-    ```python
-    from sklearn.metrics import accuracy_score
+    print(response.model_dump_json(indent=2))
+    fine_tuned_model = response.fine_tuned_model
+     ```
+   
+## Implantar modelo ajustado
 
-    preds = predictions.predictions.argmax(-1)
-    labels = predictions.label_ids
-    accuracy = accuracy_score(labels, preds)
-    print(f"Accuracy: {accuracy}")
-    ```
+Você já tem um modelo ajustado e poderá implantá-lo como modelo personalizado e usá-lo como qualquer outro modelo implantado no Playground do **Chat** do Estúdio de IA do Azure ou por meio da API de conclusão do chat.
 
-- Salvar o modelo ajustado
-    1. Salve o modelo ajustado em seu ambiente do Azure Databricks ou no armazenamento do Azure para uso futuro.
-    2. Exemplo:
+1. Em uma nova célula, execute o seguinte código para implementar o modelo ajustado:
+   
+     ```python
+    import json
+    import requests
 
-    ```python
-    model.save_pretrained("/dbfs/mnt/fine-tuned-gpt4/")
-    ```
+    token = os.getenv("TEMP_AUTH_TOKEN")
+    subscription = "<YOUR_SUBSCRIPTION_ID>"
+    resource_group = "<YOUR_RESOURCE_GROUP_NAME>"
+    resource_name = "<YOUR_AZURE_OPENAI_RESOURCE_NAME>"
+    model_deployment_name = "gpt-35-turbo-ft"
 
-## Etapa 7: Implantação do modelo ajustado
-- Empacotar o modelo para implantação
-    1. Converta o modelo em um formato compatível com o OpenAI do Azure ou outro serviço de implantação.
+    deploy_params = {'api-version': "2023-05-01"}
+    deploy_headers = {'Authorization': 'Bearer {}'.format(token), 'Content-Type': 'application/json'}
 
-- Implantar o modelo
-    1. Use o OpenAI do Azure para implantação registrando o modelo por meio do Azure Machine Learning ou diretamente com o ponto de extremidade do OpenAI.
+    deploy_data = {
+        "sku": {"name": "standard", "capacity": 1},
+        "properties": {
+            "model": {
+                "format": "OpenAI",
+                "name": "<YOUR_FINE_TUNED_MODEL>",
+                "version": "1"
+            }
+        }
+    }
+    deploy_data = json.dumps(deploy_data)
 
-- Testar o modelo implantado
-    1. Execute testes para garantir que o modelo implantado se comporte conforme o esperado e se integre perfeitamente aos aplicativos.
+    request_url = f'https://management.azure.com/subscriptions/{subscription}/resourceGroups/{resource_group}/providers/Microsoft.CognitiveServices/accounts/{resource_name}/deployments/{model_deployment_name}'
 
-## Etapa 8: Limpar os recursos
-- Encerrar o cluster:
-    1. Volte para a página "Computação", selecione seu cluster e clique em "Encerrar" para interromper o cluster.
+    print('Creating a new deployment...')
 
-- Opcional: exclua o serviço Databricks:
-    1. Para evitar cobranças adicionais, considere excluir o workspace do Databricks se esse laboratório não fizer parte de um projeto ou roteiro de aprendizagem maior.
+    r = requests.put(request_url, params=deploy_params, headers=deploy_headers, data=deploy_data)
 
-Este exercício forneceu um guia abrangente sobre como ajustar modelos de linguagem grande, como GPT-4, usando o Azure Databricks e o OpenAI do Azure. Seguindo essas etapas, você poderá ajustar modelos para tarefas específicas, avaliar seu desempenho e implantá-los para aplicativos do mundo real.
+    print(r)
+    print(r.reason)
+    print(r.json())
+     ```
 
+2. Em uma nova célula, execute o seguinte código para usar o modelo personalizado em uma chamada de conclusão de chat:
+   
+     ```python
+    import os
+    from openai import AzureOpenAI
+
+    client = AzureOpenAI(
+      azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
+      api_key = os.getenv("AZURE_OPENAI_API_KEY"),
+      api_version = "2024-02-01"
+    )
+
+    response = client.chat.completions.create(
+        model = "gpt-35-turbo-ft", # model = "Custom deployment name you chose for your fine-tuning model"
+        messages = [
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": "Does Azure OpenAI support customer managed keys?"},
+            {"role": "assistant", "content": "Yes, customer managed keys are supported by Azure OpenAI."},
+            {"role": "user", "content": "Do other Azure AI services support this too?"}
+        ]
+    )
+
+    print(response.choices[0].message.content)
+     ```
+ 
+## Limpar
+
+Quando terminar o recurso do OpenAI do Azure, lembre-se de excluir a implantação ou todo o recurso no **portal do Azure** em `https://portal.azure.com`.
+
+No portal do Azure Databricks, na página **Computação**, selecione seu cluster e selecione **&#9632; Terminar** para encerrar o processo.
+
+Se você tiver terminado de explorar o Azure Databricks, poderá excluir os recursos que criou para evitar custos desnecessários do Azure e liberar capacidade em sua assinatura.

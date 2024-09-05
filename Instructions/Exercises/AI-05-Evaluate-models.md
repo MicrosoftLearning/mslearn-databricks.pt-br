@@ -1,180 +1,200 @@
-# Exercício 05 – Avaliar modelos de linguagem grandes usando o Azure Databricks e o OpenAI do Azure
+---
+lab:
+  title: Avaliar modelos de linguagem grande usando o Azure Databricks e o OpenAI do Azure
+---
 
-## Objetivo
-Neste exercício, você aprenderá a avaliar LLMs (modelos de linguagem grande) usando o Azure Databricks e o modelo GPT-4 do OpenAI. Isso inclui configurar o ambiente, definir métricas de avaliação e analisar o desempenho do modelo em tarefas específicas.
+# Avaliar modelos de linguagem grande usando o Azure Databricks e o OpenAI do Azure
 
-## Requisitos
-Uma assinatura ativa do Azure. Se você não tiver uma, poderá se inscrever para uma [avaliação gratuita](https://azure.microsoft.com/en-us/free/).
+A avaliação de LLMs (modelos de linguagem grande) envolve uma série de etapas para garantir que o desempenho do modelo atenda aos padrões exigidos. MLflow LLM Evaluate, um recurso do Azure Databricks, fornece uma abordagem estruturada para esse processo, incluindo a configuração do ambiente, a definição de métricas de avaliação e a análise de resultados. Essa avaliação é crucial, pois os LLMs geralmente não têm uma única verdade para comparação, tornando os métodos tradicionais de avaliação inadequados.
 
-## Etapa 1: Provisionar o Azure Databricks
-- Fazer logon no portal do Azure:
-    1. Vá para o portal do Azure e entre com suas credenciais.
-- Criar serviço do Databricks:
-    1. Navegue até "Criar um recurso" > "Análise" > "Azure Databricks".
-    2. Insira os detalhes necessários, como nome do espaço de trabalho, assinatura, grupo de recursos (crie um novo ou selecione um já existente) e local.
-    3. Selecione o tipo de preço (escolha padrão para este laboratório).
-    4. Clique em "Examinar + criar" e "Criar" depois que a validação for aprovada.
+Este laboratório levará aproximadamente **20** minutos para ser concluído.
 
-## Etapa 2: Iniciar o espaço de trabalho e criar um cluster
-- Iniciar o workspace do Databricks:
-    1. Quando a implantação estiver concluída, vá para o recurso e clique em "Iniciar espaço de trabalho".
-- Criar um Cluster do Spark:
-    1. No workspace do Databricks, clique em "Computação" na barra lateral e, em seguida, em "Criar computação".
-    2. Especifique o nome do cluster e selecione uma versão de runtime do Spark.
-    3. Escolha o tipo de trabalhador como "Padrão" e o tipo de nó com base nas opções disponíveis (escolha nós menores para eficiência de custo).
-    4. Clique em "Criar computação".
+## Antes de começar
 
-## Etapa 3: Instalar bibliotecas necessárias
+É necessário ter uma [assinatura do Azure](https://azure.microsoft.com/free) com acesso de nível administrativo.
 
-- Faça login no workspace do Azure Databricks.
-- Crie um novo notebook e selecione o cluster padrão.
-- Execeute os comandos a seguir para instalar as bibliotecas necessárias do Python:
+## Provisionar um recurso de OpenAI do Azure
 
-```python
-%pip install openai
-%pip install transformers
-%pip install datasets
-```
+Se ainda não tiver um, provisione um recurso OpenAI do Azure na sua assinatura do Azure.
 
-- Configurar chave de API OpenAI:
-    1. Adicione sua chave de API do OpenAI do Azure ao notebook:
+1. Entre no **portal do Azure** em `https://portal.azure.com`.
+2. Crie um recurso do **OpenAI do Azure** com as seguintes configurações:
+    - **Assinatura**: *Selecione uma assinatura do Azure que tenha sido aprovada para acesso ao serviço Azure OpenAI*
+    - **Grupo de recursos**: *escolher ou criar um grupo de recursos*
+    - **Região**: *faça uma escolha **aleatória** de uma das regiões a seguir*\*
+        - Leste dos EUA 2
+        - Centro-Norte dos EUA
+        - Suécia Central
+        - Oeste da Suíça
+    - **Nome**: *um nome exclusivo de sua preferência*
+    - **Tipo de preço**: Standard S0
 
-    ```python
-    import openai
-    openai.api_key = "your-openai-api-key"
-    ```
+> \* Os recursos do OpenAI do Azure são restritos por cotas regionais. As regiões listadas incluem a cota padrão para os tipos de modelos usados neste exercício. A escolha aleatória de uma região reduz o risco de uma só região atingir o limite de cota em cenários nos quais você compartilha uma assinatura com outros usuários. No caso de um limite de cota ser atingido mais adiante no exercício, há a possibilidade de você precisar criar outro recurso em uma região diferente.
 
-## Etapa 4: Definir métricas de avaliação
-- Defina métricas de avaliação comuns:
-    1. Nesta etapa, você definirá métricas de avaliação, como Perplexidade, pontuação BLEU, pontuação ROUGE e precisão, dependendo da tarefa.
+3. Aguarde o fim da implantação. Em seguida, vá para o recurso OpenAI do Azure implantado no portal do Azure.
 
-    ```python
-    from datasets import load_metric
+4. No painel esquerdo, em **Gerenciamento de recursos**, selecione **Chaves e Ponto de Extremidade**.
 
-    # Example: Load BLEU metric
-    bleu_metric = load_metric("bleu")
-    rouge_metric = load_metric("rouge")
+5. Copie o ponto de extremidade e uma das chaves disponíveis para usar posteriormente neste exercício.
 
-    def compute_bleu(predictions, references):
-        return bleu_metric.compute(predictions=predictions, references=references)
+## Implantar o modelo necessário
 
-    def compute_rouge(predictions, references):
-        return rouge_metric.compute(predictions=predictions, references=references)
-    ```
+O Azure fornece um portal baseado na Web chamado **Estúdio de IA do Azure**, que você pode usar para implantar, gerenciar e explorar modelos. Você iniciará sua exploração do OpenAI do Azure usando o Estúdio de IA do Azure para implantar um modelo.
 
-- Defina métricas específicas da tarefa:
-    1. Dependendo do caso de uso, defina outras métricas relevantes. Por exemplo, para análise de sentimento, defina precisão:
+> **Observação**: À medida que você usa o Estúdio de IA do Azure, podem ser exibidas caixas de mensagens sugerindo tarefas para você executar. Você pode fechá-los e seguir as etapas desse exercício.
 
-    ```python
-    from sklearn.metrics import accuracy_score
+1. No portal do Azure, na página **Visão geral** do recurso OpenAI do Azure, role para baixo até a seção **Introdução** e clique no botão para abrir o **Estúdio de IA do Azure**.
+   
+1. No Estúdio de IA do Azure, no painel à esquerda, selecione a página **Implantações** e visualize as implantações de modelo existentes. Se você ainda não tiver uma implantação, crie uma nova implantação do modelo **gpt-35-turbo** com as seguintes configurações:
+    - **Nome da implantação**: *gpt-35-turbo*
+    - **Modelo**: gpt-35-turbo
+    - **Versão do modelo**: Padrão
+    - **Tipo de implantação**: Padrão
+    - **Limite de taxa de tokens por minuto**: 5K\*
+    - **Filtro de conteúdo**: Padrão
+    - **Habilitar cota dinâmica**: Desabilitado
+    
+> \* Um limite de taxa de 5.000 tokens por minuto é mais do que adequado para concluir este exercício, deixando capacidade para outras pessoas que usam a mesma assinatura.
 
-    def compute_accuracy(predictions, references):
-        return accuracy_score(references, predictions)
-    ```
+## Provisionar um workspace do Azure Databricks
 
-## Etapa 5: preparar o conjunto de dados
-- Carregar um conjunto de dados
-    1. Use a biblioteca de conjuntos de dados para carregar um conjunto de dados predefinido. Para este laboratório, você pode usar um conjunto de dados simples, como o conjunto de dados de resenhas de filmes do IMDB para análise de sentimento:
+> **Dica**: Se você já tem um workspace do Azure Databricks, pode ignorar esse procedimento e usar o workspace existente.
 
-    ```python
-    from datasets import load_dataset
+1. Entre no **portal do Azure** em `https://portal.azure.com`.
+2. Crie um recurso do **Azure Databricks** com as seguintes configurações:
+    - **Assinatura**: *selecione a mesma assinatura do Azure usada para criar o recurso do OpenAI do Azure*
+    - **Grupo de recursos**: *o grupo de recursos em que você criou o recurso do OpenAI do Azure*
+    - **Região**: *a mesma região onde você criou seu recurso do OpenAI do Azure*
+    - **Nome**: *um nome exclusivo de sua preferência*
+    - **Tipo de preço**: *premium* ou *avaliação*
 
-    dataset = load_dataset("imdb")
-    test_data = dataset["test"]
-    ```
+3. Selecione **Revisar + criar** e aguarde a conclusão da implantação. Em seguida, vá para o recurso e inicie o workspace.
 
-- Pré-processar os dados
-    1. Tokenize e pré-processe o conjunto de dados para ser compatível com o modelo GPT-4:
+## Criar um cluster
 
-    ```python
-    from transformers import GPT2Tokenizer
+O Azure Databricks é uma plataforma de processamento distribuído que usa *clusters* do Apache Spark para processar dados em paralelo em vários nós. Cada cluster consiste em um nó de driver para coordenar o trabalho e nós de trabalho para executar tarefas de processamento. Neste exercício, você criará um cluster de *nó único* para minimizar os recursos de computação usados no ambiente de laboratório (no qual os recursos podem ser restritos). Em um ambiente de produção, você normalmente criaria um cluster com vários nós de trabalho.
 
-    tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+> **Dica**: Se você já tiver um cluster com uma versão de runtime 13.3 LTS **<u>ML</u>** ou superior em seu workspace do Azure Databricks, poderá usá-lo para concluir este exercício e ignorar este procedimento.
 
-    def preprocess_function(examples):
-        return tokenizer(examples["text"], truncation=True, padding=True)
+1. No portal do Azure, navegue até o grupo de recursos em que o workspace do Azure Databricks foi criado.
+2. Clique no recurso de serviço do Azure Databricks.
+3. Na página **Visão geral** do seu workspace, use o botão **Iniciar workspace** para abrir seu workspace do Azure Databricks em uma nova guia do navegador, fazendo o logon se solicitado.
 
-    tokenized_data = test_data.map(preprocess_function, batched=True)
-    ```
+> **Dica**: ao usar o portal do workspace do Databricks, várias dicas e notificações podem ser exibidas. Dispense-as e siga as instruções fornecidas para concluir as tarefas neste exercício.
 
-## Etapa 6: Avaliar o modelo GPT-4
-- Gerar previsões:
-    1. Use o modelo GPT-4 para gerar previsões para o conjunto de dados de teste
+4. Na barra lateral à esquerda, selecione a tarefa **(+) Novo** e, em seguida, selecione **Cluster**.
+5. Na página **Novo Cluster**, crie um novo cluster com as seguintes configurações:
+    - **Nome do cluster**: cluster *Nome do Usuário* (o nome do cluster padrão)
+    - **Política**: Sem restrições
+    - **Modo de cluster**: Nó Único
+    - **Modo de acesso**: Usuário único (*com sua conta de usuário selecionada*)
+    - **Versão do runtime do Databricks**: *Selecione a edição do **<u>ML</u>** da última versão não beta do runtime (**Não** uma versão de runtime Standard) que:*
+        - ***Não** usa uma GPU*
+        - *Inclui o Scala > **2.11***
+        - *Inclui o Spark > **3.4***
+    - **Usa a Aceleração do Photon**: <u>Não</u> selecionado
+    - **Tipo de nó**: Standard_DS3_v2
+    - **Encerra após** *20* **minutos de inatividade**
 
-    ```python
-    def generate_predictions(input_texts):
-    predictions = []
-    for text in input_texts:
-        response = openai.Completion.create(
-            model="gpt-4",
-            prompt=text,
-            max_tokens=50
+6. Aguarde a criação do cluster. Isso pode levar alguns minutos.
+
+> **Observação**: se o cluster não for iniciado, sua assinatura pode ter cota insuficiente na região onde seu workspace do Azure Databricks está provisionado. Consulte [Limite de núcleo da CPU impede a criação do cluster](https://docs.microsoft.com/azure/databricks/kb/clusters/azure-core-limit) para obter detalhes. Se isso acontecer, você pode tentar excluir seu workspace e criar um novo workspace em uma região diferente.
+
+## Instalar as bibliotecas necessárias
+
+1. Na página do cluster, selecione a guia **Bibliotecas**.
+
+2. Selecione **Instalar novo**.
+
+3. Selecione **PyPI** como a fonte da biblioteca e instale `openai==1.42.0`.
+
+## Criar um novo notebook
+
+1. Na barra lateral, use o link **(+) Novo** para criar um **Notebook**.
+   
+1. Nomeie seu notebook e, na lista suspensa **Conectar**, selecione o cluster caso ainda não esteja selecionado. Se o cluster não executar, é porque ele pode levar cerca de um minuto para iniciar.
+
+2. Na primeira célula do notebook, execute o seguinte código com as informações de acesso copiadas no início deste exercício para atribuir variáveis de ambiente persistentes para autenticação ao usar recursos do OpenAI do Azure:
+
+     ```python
+    import os
+
+    os.environ["AZURE_OPENAI_API_KEY"] = "your_openai_api_key"
+    os.environ["AZURE_OPENAI_ENDPOINT"] = "your_openai_endpoint"
+    os.environ["AZURE_OPENAI_API_VERSION"] = "2023-03-15-preview"
+     ```
+
+## Avaliar LLM com uma função personalizada
+
+No MLflow 2.8.0 e superior, `mlflow.evaluate()` dá suporte à avaliação de uma função Python sem exigir que o modelo seja registrado no MLflow. O processo envolve a especificação do modelo a ser avaliado, as métricas a serem calculadas e os dados de avaliação, que geralmente são um DataFrame do Pandas. 
+
+1. Em uma nova célula, execute o código a seguir para definir um dataframe de avaliação de amostra:
+
+     ```python
+    import pandas as pd
+
+    eval_data = pd.DataFrame(
+        {
+            "inputs": [
+                "What is MLflow?",
+                "What is Spark?",
+            ],
+            "ground_truth": [
+                "MLflow is an open-source platform for managing the end-to-end machine learning (ML) lifecycle. It was developed by Databricks, a company that specializes in big data and machine learning solutions. MLflow is designed to address the challenges that data scientists and machine learning engineers face when developing, training, and deploying machine learning models.",
+                "Apache Spark is an open-source, distributed computing system designed for big data processing and analytics. It was developed in response to limitations of the Hadoop MapReduce computing model, offering improvements in speed and ease of use. Spark provides libraries for various tasks such as data ingestion, processing, and analysis through its components like Spark SQL for structured data, Spark Streaming for real-time data processing, and MLlib for machine learning tasks",
+            ],
+        }
+    )
+     ```
+
+1. Em uma nova célula, execute o seguinte código para inicializar um cliente para o recurso OpenAI do Azure e definir sua função personalizada:
+
+     ```python
+    import os
+    import pandas as pd
+    from openai import AzureOpenAI
+
+    client = AzureOpenAI(
+        azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
+        api_key = os.getenv("AZURE_OPENAI_API_KEY"),
+        api_version = os.getenv("AZURE_OPENAI_API_VERSION")
+    )
+
+    def openai_qa(inputs):
+        answers = []
+        system_prompt = "Please answer the following question in formal language."
+        for index, row in inputs.iterrows():
+            completion = client.chat.completions.create(
+                model="gpt-35-turbo",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": "{row}"},
+                ],
+            )
+            answers.append(completion.choices[0].message.content)
+
+        return answers
+
+     ```
+
+1. Em uma nova célula, execute o seguinte código para criar um experimento e avaliar a função personalizada com os dados de avaliação:
+
+     ```python
+    import mlflow
+
+    with mlflow.start_run() as run:
+        results = mlflow.evaluate(
+            openai_qa,
+            eval_data,
+            model_type="question-answering",
         )
-        predictions.append(response.choices[0].text.strip())
-    return predictions
+     ```
+Depois que a execução for bem-sucedida, ela gerará um link para a página do experimento, onde você poderá verificar as métricas do modelo. Para `model_type="question-answering"`, as métricas padrão são **toxicidade**, **ari_grade_level** e **flesch_kincaid_grade_level**.
 
-    input_texts = tokenized_data["text"]
-    predictions = generate_predictions(input_texts)
-    ```
+## Limpar
 
-- Computar métricas de avaliação
-    1. Calcular as métricas de avaliação com base nas previsões geradas pelo modelo GPT-4
+Quando terminar o recurso do OpenAI do Azure, lembre-se de excluir a implantação ou todo o recurso no **portal do Azure** em `https://portal.azure.com`.
 
-    ```python
-    # Example: Compute BLEU and ROUGE scores
-    bleu_score = compute_bleu(predictions, tokenized_data["text"])
-    rouge_score = compute_rouge(predictions, tokenized_data["text"])
+No portal do Azure Databricks, na página **Computação**, selecione seu cluster e selecione **&#9632; Terminar** para encerrar o processo.
 
-    print("BLEU Score:", bleu_score)
-    print("ROUGE Score:", rouge_score)
-    ```
-
-    2. Se você estiver avaliando uma tarefa específica, como análise de sentimento, calcule a precisão
-
-    ```python
-    # Assuming binary sentiment labels (positive/negative)
-    actual_labels = test_data["label"]
-    predicted_labels = [1 if "positive" in pred else 0 for pred in predictions]
-
-    accuracy = compute_accuracy(predicted_labels, actual_labels)
-    print("Accuracy:", accuracy)
-    ```
-
-## Etapa 7: Analisar e interpretar os resultados
-
-- Interpretar os resultados
-    1. Analise as pontuações BLEU, ROUGE ou de precisão para determinar o desempenho do modelo GPT-4 em sua tarefa.
-    2. Discuta os possíveis motivos para quaisquer discrepâncias e considere maneiras de melhorar o desempenho do modelo (por exemplo, ajuste fino, mais pré-processamento de dados).
-
-- Visualizar os resultados
-    1. Opcionalmente, você pode visualizar os resultados usando Matplotlib ou qualquer outra ferramenta de visualização.
-
-    ```python
-    import matplotlib.pyplot as plt
-
-    # Example: Plot accuracy scores
-    plt.bar(["Accuracy"], [accuracy])
-    plt.ylabel("Score")
-    plt.title("Model Evaluation Metrics")
-    plt.show()
-    ```
-
-## Etapa 8: Experimentar diferentes cenários
-
-- Experimentar diferentes prompts
-    1. Modifique a estrutura do prompt para ver como ela afeta o desempenho do modelo.
-
-- Avaliar em diferentes conjuntos de dados
-    1. Tente usar um conjunto de dados diferente para avaliar a versatilidade do modelo GPT-4 em várias tarefas.
-
-- Otimizar as métricas de avaliação
-    1. Experimente hiperparâmetros como temperatura, tokens máximos, etc., para otimizar as métricas de avaliação.
-
-## Etapa 9: Limpar os recursos
-- Encerrar o cluster:
-    1. Volte para a página "Computação", selecione seu cluster e clique em "Encerrar" para interromper o cluster.
-
-- Opcional: exclua o serviço Databricks:
-    1. Para evitar cobranças adicionais, considere excluir o workspace do Databricks se esse laboratório não fizer parte de um projeto ou roteiro de aprendizagem maior.
-
-Este exercício orienta você pelo processo de avaliação de um grande modelo de linguagem usando o Azure Databricks e o modelo GPT-4 do OpenAI. Ao concluir este exercício, você obterá insights sobre o desempenho do modelo e entenderá como melhorar e ajustar o modelo para tarefas específicas.
+Se você tiver terminado de explorar o Azure Databricks, poderá excluir os recursos que criou para evitar custos desnecessários do Azure e liberar capacidade em sua assinatura.
