@@ -21,7 +21,7 @@ Este exercício inclui um script para provisionar um novo workspace do Azure Da
 
     ![Portal do Azure com um painel do Cloud Shell](./images/cloud-shell.png)
 
-    > **Observação**: se você tiver criado anteriormente um cloud shell que usa um ambiente *Bash*, use o menu suspenso no canto superior esquerdo do painel do cloud shell para alterá-lo para ***PowerShell***.
+    > **Observação**: Se você tiver criado anteriormente um shell de nuvem que usa um ambiente *Bash*, use o menu suspenso no canto superior esquerdo do painel do shell de nuvem para alterá-lo para ***PowerShell***.
 
 3. Observe que você pode redimensionar o Cloud Shell arrastando a barra do separador na parte superior do painel ou usando os ícones **&#8212;** , **&#9723;** e **X** no canto superior direito do painel para minimizar, maximizar e fechar o painel. Para obter mais informações de como usar o Azure Cloud Shell, confira a [documentação do Azure Cloud Shell](https://docs.microsoft.com/azure/cloud-shell/overview).
 
@@ -76,7 +76,7 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
 
 1. Na barra lateral, use o link **(+) Novo** para criar um **Notebook**.
 
-2. Altere o nome padrão do notebook (**Notebook Sem Título *[data]***) para **Criar um pipeline com tabelas do Delta Live** e, na lista suspensa **Conectar**, selecione o cluster, caso ainda não esteja selecionado. Se o cluster não executar, é porque ele pode levar cerca de um minuto para iniciar.
+2. Altere o nome padrão do notebook (**Notebook Sem Título *[data]***) para `Create a pipeline with Delta Live tables` e, na lista suspensa **Conectar**, selecione o cluster, caso ainda não esteja selecionado. Se o cluster não executar, é porque ele pode levar cerca de um minuto para iniciar.
 
 3. Na primeira célula do notebook, insira o código a seguir, que usa os comandos de *shell* para baixar os arquivos de dados do GitHub para o sistema de arquivos usado pelo cluster.
 
@@ -91,7 +91,9 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
 
 ## Criar pipeline do Delta Live Tables usando SQL
 
-Crie um novo notebook SQL e comece a definir o Delta Live Tables usando scripts SQL. Verifique se você habilitou a interface do usuário do SQL do DLT.
+Crie um novo notebook e comece a definir o Delta Live Tables usando scripts SQL.
+
+1. Ao lado do nome do notebook, selecione **Python** e altere o idioma padrão para **SQL**.
 
 1. Coloque o código a seguir na primeira célula, mas não execute-o. Todas as células serão executadas após a criação do pipeline. Esse código define uma tabela do Delta Live que será preenchida pelos dados brutos baixados anteriormente:
 
@@ -117,7 +119,7 @@ Crie um novo notebook SQL e comece a definir o Delta Live Tables usando scripts 
     COMMENT "Formatted and filtered data for analysis."
     AS
     SELECT
-        DATE_FORMAT(Last_Update, 'MM/dd/yyyy') as Report_Date,
+        TO_DATE(Last_Update, 'MM/dd/yyyy') as Report_Date,
         Country_Region,
         Confirmed,
         Deaths,
@@ -143,8 +145,8 @@ Crie um novo notebook SQL e comece a definir o Delta Live Tables usando scripts 
 4. Selecione **Delta Live Tables** na barra lateral esquerda e, em seguida, selecione **Criar pipeline**.
 
 5. Na página **Criar pipeline**, crie um novo pipeline com as seguintes configurações:
-    - **Nome do pipeline**: dê um nome ao pipeline
-    - **Edição do produto**: Avançada
+    - **Nome do pipeline**: nomeie o pipeline
+    - **Edição do produto**: avançado
     - **Modo do pipeline**: Acionado
     - **Código-fonte**: selecione seu notebook SQL
     - **Opções de armazenamento**: metastore do Hive
@@ -154,8 +156,8 @@ Crie um novo notebook SQL e comece a definir o Delta Live Tables usando scripts 
  
 7. Depois que o pipeline for executado, volte para o primeiro notebook e verifique se as três novas tabelas foram criadas no local de armazenamento especificado com o seguinte código:
 
-     ```sql
-    display(dbutils.fs.ls("dbfs:/pipelines/delta_lab"))
+     ```python
+    display(dbutils.fs.ls("dbfs:/pipelines/delta_lab/tables"))
      ```
 
 ## Exibir resultados como uma visualização
@@ -174,7 +176,7 @@ Depois de criar as tabelas, é possível carregá-las em dataframes e visualizar
     - **Coluna X**: Report_Date
     - **Coluna Y**: *adicione uma nova coluna e selecione***Total_Confirmed**. *Aplicar a* **Agregação** de *soma*.
 
-1. Salve a visualização e visualize o gráfico resultante no notebook.
+1. Salve a visualização para exibir o gráfico resultante no notebook.
 
 ## Limpar
 

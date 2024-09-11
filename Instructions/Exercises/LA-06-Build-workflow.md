@@ -21,7 +21,7 @@ Este exercício inclui um script para provisionar um novo workspace do Azure Da
 
     ![Portal do Azure com um painel do Cloud Shell](./images/cloud-shell.png)
 
-    > **Observação**: se você tiver criado anteriormente um cloud shell que usa um ambiente *Bash*, use o menu suspenso no canto superior esquerdo do painel do cloud shell para alterá-lo para ***PowerShell***.
+    > **Observação**: Se você tiver criado anteriormente um shell de nuvem que usa um ambiente *Bash*, use o menu suspenso no canto superior esquerdo do painel do shell de nuvem para alterá-lo para ***PowerShell***.
 
 3. Observe que você pode redimensionar o Cloud Shell arrastando a barra do separador na parte superior do painel ou usando os ícones **&#8212;** , **&#9723;** e **X** no canto superior direito do painel para minimizar, maximizar e fechar o painel. Para obter mais informações de como usar o Azure Cloud Shell, confira a [documentação do Azure Cloud Shell](https://docs.microsoft.com/azure/cloud-shell/overview).
 
@@ -76,7 +76,7 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
 
 1. Na barra lateral, use o link **(+) Novo** para criar um **Notebook**.
 
-2. Na lista suspensa **Conectar**, selecione o cluster se ele ainda não estiver selecionado. Se o cluster não executar, é porque ele pode levar cerca de um minuto para iniciar.
+2. Na lista suspensa **Conectar**, selecione o cluster caso ainda não esteja selecionado. Se o cluster não executar, é porque ele pode levar cerca de um minuto para iniciar.
 
 3. Na primeira célula do notebook, insira o código a seguir, que usa os comandos de *shell* para baixar os arquivos de dados do GitHub para o sistema de arquivos usado pelo cluster.
 
@@ -97,7 +97,7 @@ Implemente o fluxo de trabalho de processamento e análise de dados usando taref
 
 1. Na barra lateral, use o link **(+) Novo** para criar um **Notebook**.
 
-2. Altere o nome padrão do notebook (**Notebook Sem Título *[data]***) para **tarefa de ETL** e, na lista suspensa **Conectar**, selecione o cluster, caso ainda não esteja selecionado. Se o cluster não executar, é porque ele pode levar cerca de um minuto para iniciar.
+2. Altere o nome padrão do notebook (**Notebook Sem Título *[data]***) para `ETL task` e, na lista suspensa **Conectar**, selecione o cluster, caso ainda não esteja selecionado. Se o cluster não executar, é porque ele pode levar cerca de um minuto para iniciar.
 
 3. Na primeira célula do notebook, insira o seguinte código, que define um esquema para os dados e carrega os conjuntos de dados em um dataframe:
 
@@ -127,7 +127,7 @@ Implemente o fluxo de trabalho de processamento e análise de dados usando taref
     df = df.withColumn('Tax', col('UnitPrice') * 0.08)
     df = df.withColumn('Tax', col('Tax').cast("float"))
      ```
-> Observação: depois de atualizar os valores na coluna **Imposto**, o tipo de dados da coluna é definido como `float` novamente. Isso ocorre porque seu tipo de dados muda para `double` depois que o cálculo é feito. Como `double` tem um uso de memória maior do que `float`, é melhor para o desempenho converter a coluna de volta para `float`.
+    > **Observação**: depois de atualizar os valores na coluna **Imposto**, o tipo de dados da coluna é definido como `float` novamente. Isso ocorre porque seu tipo de dados muda para `double` depois que o cálculo é feito. Como `double` tem um uso de memória maior do que `float`, é melhor para o desempenho converter a coluna de volta para `float`.
 
 5. Execute o seguinte código em uma nova célula de código para agregar e agrupar os dados do pedido:
 
@@ -156,7 +156,7 @@ O Azure Databricks gerencia a orquestração de tarefas, o gerenciamento de clus
 
 2. No painel Fluxos de trabalho, clique em **Criar trabalho**.
 
-3. Altere o nome do trabalho padrão (**Novo trabalho *[data]***) para **trabalho de ETL**.
+3. Altere o nome do trabalho padrão (**Novo trabalho *[data]***) para `ETL job`.
 
 4. No campo **Nome da tarefa**, insira um nome para a tarefa.
 

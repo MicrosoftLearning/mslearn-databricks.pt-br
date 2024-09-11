@@ -24,7 +24,7 @@ Este exercício inclui um script para provisionar um novo workspace do Azure Da
 
     ![Portal do Azure com um painel do Cloud Shell](./images/cloud-shell.png)
 
-    > **Observação**: se você tiver criado anteriormente um cloud shell que usa um ambiente *Bash*, use o menu suspenso no canto superior esquerdo do painel do cloud shell para alterá-lo para ***PowerShell***.
+    > **Observação**: Se você tiver criado anteriormente um shell de nuvem que usa um ambiente *Bash*, use o menu suspenso no canto superior esquerdo do painel do shell de nuvem para alterá-lo para ***PowerShell***.
 
 3. Observe que você pode redimensionar o Cloud Shell arrastando a barra do separador na parte superior do painel ou usando os ícones **&#8212;** , **&#9723;** e **X** no canto superior direito do painel para minimizar, maximizar e fechar o painel. Para obter mais informações de como usar o Azure Cloud Shell, confira a [documentação do Azure Cloud Shell](https://docs.microsoft.com/azure/cloud-shell/overview).
 
@@ -75,7 +75,7 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
 
 1. Na barra lateral, use o link **(+) Novo** para criar um **Notebook**.
 
-2. Altere o nome padrão do notebook (**Notebook Sem Título *[data]***) para **Transformar dados com o Spark** e, na lista suspensa **Conectar**, selecione o cluster, caso ainda não esteja selecionado. Se o cluster não executar, é porque ele pode levar cerca de um minuto para iniciar.
+2. Altere o nome padrão do notebook (**Notebook Sem Título *[data]***) para `Transform data with Spark` e, na lista suspensa **Conectar**, selecione o cluster, caso ainda não esteja selecionado. Se o cluster não executar, é porque ele pode levar cerca de um minuto para iniciar.
 
 ## Ingerir dados
 
@@ -178,7 +178,7 @@ Observe que, após atualizar os valores na coluna **Imposto**, o tipo de dados s
    display(yearlySales)
     ```
 
-    Desta vez, os resultados mostram o número de pedidos de vendas por ano. Observe que o método “select” inclui uma função SQL **year**para extrair o componente de ano do campo *OrderDate* e, em seguida, um método **alias** é usado para atribuir um nome de coluna ao valor de ano extraído. Em seguida, os dados são agrupados pela coluna *Year* derivada, e a **contagem** de linhas em cada grupo é calculada antes de finalmente o método **orderBy** ser usado para classificar o dataframe resultante.
+    Desta vez, os resultados mostram o número de pedidos de vendas por ano. Observe que o método de seleção inclui uma função SQL **year** para extrair o componente de ano do campo *OrderDate* e, em seguida, um método **alias** é usado para atribuir um nome de coluna ao valor de ano extraído. Em seguida, os dados são agrupados pela coluna *Year* derivada, e a **contagem** de linhas em cada grupo é calculada antes de finalmente o método **orderBy** ser usado para classificar o dataframe resultante.
 
 > **Observação**: Para saber mais sobre como trabalhar com Dataframes no Azure Databricks, consulte [Introdução a DataFrames – Python](https://docs.microsoft.com/azure/databricks/spark/latest/dataframes-datasets/introduction-to-dataframes-python) na documentação do Azure Databricks.
 
@@ -186,7 +186,15 @@ Observe que, após atualizar os valores na coluna **Imposto**, o tipo de dados s
 
 1. Embora seja útil a inserção de instruções SQL em uma célula que contém código PySpark, os analistas de dados muitas vezes preferem trabalhar diretamente com SQL. Adicione uma nova célula de código e use-a para executar o código a seguir.
 
-    ```sql
+    ```python
+   df.createOrReplaceTempView("salesorders")
+    ```
+
+Essa linha de código criará uma exibição temporária que poderá ser usada diretamente com instruções SQL.
+
+2. Execute o código a seguir em uma nova célula:
+   
+    ```python
    %sql
     
    SELECT YEAR(OrderDate) AS OrderYear,
@@ -198,7 +206,7 @@ Observe que, após atualizar os valores na coluna **Imposto**, o tipo de dados s
 
     Observe que:
     
-    - A linha ``%sql` no início da célula (chamada de “magic”) indica que o runtime da linguagem Spark SQL deve ser usado para executar o código nessa célula, em vez do PySpark.
+    - A linha **%sql** no início da célula (chamada de magic) indica que o runtime da linguagem Spark SQL deve ser usado para executar o código nessa célula, em vez do PySpark.
     - O código SQL referencia a exibição **salesorders** que você criou anteriormente.
     - A saída da consulta SQL é exibida automaticamente como o resultado abaixo da célula.
     
