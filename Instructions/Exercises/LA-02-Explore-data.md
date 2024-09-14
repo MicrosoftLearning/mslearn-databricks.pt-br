@@ -11,7 +11,7 @@ O Azure Databricks facilita a EDA (análise exploratória de dados), permitindo 
 
 O serviço se integra a uma variedade de ferramentas e técnicas de EDA, incluindo métodos estatísticos e visualizações, para resumir as características dos dados e identificar quaisquer problemas subjacentes.
 
-Este exercício deve levar aproximadamente **45** minutos para ser concluído.
+Este exercício deve levar aproximadamente **30** minutos para ser concluído.
 
 ## Provisionar um workspace do Azure Databricks
 
@@ -26,7 +26,7 @@ Se o script falhar devido a cota ou permissões insuficientes, você pode tentar
 
     ![Portal do Azure com um painel do Cloud Shell](./images/cloud-shell.png)
 
-    > **Observação**: se você tiver criado anteriormente um cloud shell que usa um ambiente *Bash*, use o menu suspenso no canto superior esquerdo do painel do cloud shell para alterá-lo para ***PowerShell***.
+    > **Observação**: Se você tiver criado anteriormente um shell de nuvem que usa um ambiente *Bash*, use o menu suspenso no canto superior esquerdo do painel do shell de nuvem para alterá-lo para ***PowerShell***.
 
 3. Observe que você pode redimensionar o Cloud Shell arrastando a barra do separador na parte superior do painel ou usando os ícones **&#8212;** , **&#9723;** e **X** no canto superior direito do painel para minimizar, maximizar e fechar o painel. Para obter mais informações de como usar o Azure Cloud Shell, confira a [documentação do Azure Cloud Shell](https://docs.microsoft.com/azure/cloud-shell/overview).
 
@@ -79,7 +79,7 @@ Neste exercício, você criará um cluster de *nó único* para minimizar os rec
 
 1. Na barra lateral, use o link **(+) Novo** para criar um **Notebook**.
    
-1. Altere o nome padrão do notebook (**Notebook Sem Título *[data]***) para **Explorar dados com o Spark**. Na lista suspensa **Conectar**, selecione o cluster, caso ainda não esteja selecionado. Se o cluster não executar, é porque ele pode levar cerca de um minuto para iniciar.
+1. Altere o nome padrão do notebook (**Notebook Sem Título *[data]***) para `Explore data with Spark` e, na lista suspensa **Conectar**, selecione o cluster, caso ainda não esteja selecionado. Se o cluster não executar, é porque ele pode levar cerca de um minuto para iniciar.
 
 ## Ingerir dados
 
