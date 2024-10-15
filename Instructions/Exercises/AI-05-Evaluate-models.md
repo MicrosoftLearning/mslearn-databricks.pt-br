@@ -48,7 +48,7 @@ O Azure fornece um portal baseado na Web chamado **Estúdio de IA do Azure**, qu
 1. No Estúdio de IA do Azure, no painel à esquerda, selecione a página **Implantações** e visualize as implantações de modelo existentes. Se você ainda não tiver uma implantação, crie uma nova implantação do modelo **gpt-35-turbo** com as seguintes configurações:
     - **Nome da implantação**: *gpt-35-turbo*
     - **Modelo**: gpt-35-turbo
-    - **Versão do modelo**: Padrão
+    - **Versão do modelo**: padrão
     - **Tipo de implantação**: Padrão
     - **Limite de taxa de tokens por minuto**: 5K\*
     - **Filtro de conteúdo**: Padrão
@@ -93,7 +93,7 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
         - *Inclui o Scala > **2.11***
         - *Inclui o Spark > **3.4***
     - **Usa a Aceleração do Photon**: <u>Não</u> selecionado
-    - **Tipo de nó**: Standard_DS3_v2
+    - **Tipo de nó**: Standard_D4ds_v5
     - **Encerra após** *20* **minutos de inatividade**
 
 6. Aguarde a criação do cluster. Isso pode levar alguns minutos.
@@ -106,7 +106,7 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
 
 2. Selecione **Instalar novo**.
 
-3. Selecione **PyPI** como a fonte da biblioteca e instale `openai==1.42.0`.
+3. Escolha **PyPI** como a fonte da biblioteca e instale o `openai==1.42.0`.
 
 ## Criar um novo notebook
 

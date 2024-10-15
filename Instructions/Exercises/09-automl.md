@@ -1,6 +1,6 @@
 ---
 lab:
-  title: Treinar um modelo com AutoML
+  title: Preterido – Treinar um modelo com o AutoML
 ---
 
 # Treinar um modelo com AutoML

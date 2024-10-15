@@ -1,6 +1,6 @@
 ---
 lab:
-  title: Usar um SQL Warehouse no Azure Databricks
+  title: Preterido – Usar um SQL Warehouse no Azure Databricks
 ---
 
 # Usar um SQL Warehouse no Azure Databricks

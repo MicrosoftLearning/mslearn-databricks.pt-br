@@ -1,6 +1,6 @@
 ---
 lab:
-  title: Introdução ao machine learning no Azure Databricks
+  title: Preterido – Introdução ao machine learning no Azure Databricks
 ---
 
 # Introdução ao machine learning no Azure Databricks

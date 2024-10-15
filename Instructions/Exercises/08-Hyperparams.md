@@ -1,6 +1,6 @@
 ---
 lab:
-  title: Otimizar hiperparâmetros de aprendizado de máquina no Azure Databricks
+  title: Preterido – Otimizar hiperparâmetros de machine learning no Azure Databricks
 ---
 
 # Otimizar hiperparâmetros de aprendizado de máquina no Azure Databricks
