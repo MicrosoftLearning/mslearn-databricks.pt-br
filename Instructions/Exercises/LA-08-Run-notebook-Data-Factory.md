@@ -162,7 +162,6 @@ Agora que você criou um serviço vinculado, pode usá-lo em um pipeline para ex
     ```json
     {
         "runPageUrl": "https://adb-..../run/...",
-        "runOutput": "dbfs:/product_data/products.csv",
         "effectiveIntegrationRuntime": "AutoResolveIntegrationRuntime (East US)",
         "executionDuration": 61,
         "durationInQueue": {
@@ -181,8 +180,6 @@ Agora que você criou um serviço vinculado, pode usá-lo em um pipeline para ex
     }
     ```
 
-5. Observe o valor **runOutput**, que é a variável de *caminho* na qual o notebook salvou os dados.
-
-## Limpeza
+## Limpar
 
 Se você terminou de explorar o Azure Databricks, exclua os recursos que criou para evitar custos desnecessários do Azure e liberar capacidade em sua assinatura.

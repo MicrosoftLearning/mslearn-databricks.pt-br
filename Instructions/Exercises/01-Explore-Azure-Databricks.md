@@ -1,6 +1,6 @@
 ---
 lab:
-  title: Explorar o Azure Databricks
+  title: Preterido – Explorar o Azure Databricks
 ---
 
 # Explorar o Azure Databricks

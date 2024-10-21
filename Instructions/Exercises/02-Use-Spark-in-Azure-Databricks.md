@@ -1,6 +1,6 @@
 ---
 lab:
-  title: Usar Apache Spark no Azure Databricks
+  title: Preterido – Usar Apache Spark no Azure Databricks
 ---
 
 # Usar Apache Spark no Azure Databricks

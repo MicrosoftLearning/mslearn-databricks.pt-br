@@ -1,13 +1,17 @@
 ---
 lab:
-  title: Implementação da privacidade e da governança de dados usando o Microsoft Purview e o catálogo do Unity com o Azure Databricks
+  title: Implementação da privacidade e da governança de dados usando o Catálogo do Unity com o Azure Databricks
 ---
 
-# Implementação da privacidade e da governança de dados usando o Microsoft Purview e o catálogo do Unity com o Azure Databricks
+# Implementação da privacidade e da governança de dados usando o Catálogo do Unity com o Azure Databricks
 
-O Microsoft Purview permite uma governança de dados abrangente em todo o seu patrimônio de dados, integrando-se perfeitamente ao Azure Databricks para gerenciar dados do Lakehouse e trazer metadados para o Mapa de dados. O catálogo do Unity aprimora isso fornecendo gerenciamento e governança de dados centralizados, simplificando a segurança e a conformidade nos workspaces do Databricks.
+O Catálogo do Unity oferece uma solução de governança centralizada de dados e IA, simplificando a segurança ao fornecer um único local para administrar e auditar o acesso aos dados. O serviço aceita ACLs (listas de controle de acesso) refinadas e mascaramento de dados dinâmicos, que são essenciais para proteger informações confidenciais. 
 
 Este laboratório levará aproximadamente **30** minutos para ser concluído.
+
+## Antes de começar
+
+É necessário ter uma [assinatura do Azure](https://azure.microsoft.com/free) com acesso de nível administrativo.
 
 ## Provisionar um workspace do Azure Databricks
 
@@ -65,7 +69,7 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
     - **Modo de acesso**: Usuário único (*com sua conta de usuário selecionada*)
     - **Versão do runtime do Databricks**: 13.3 LTS (Spark 3.4.1, Scala 2.12) ou posterior
     - **Usar Aceleração do Photon**: Selecionado
-    - **Tipo de nó**: Standard_DS3_v2
+    - **Tipo de nó**: Standard_D4ds_v5
     - **Encerra após** *20* **minutos de inatividade**
 
 1. Aguarde a criação do cluster. Isso pode levar alguns minutos.
@@ -121,66 +125,42 @@ Os metastores do Catálogo do Unity registram metadados sobre objetos protegíve
 
 >**Observação:** no caminho do arquivo `.load`, substitua `databricksxxxxxxx` pelo nome do catálogo.
 
-9. No explorador de catálogos, vá até o volume `sample_data` e verifique se as novas tabelas estão dentro dele.
+9. No explorador de catálogos, vá até o esquema `ecommerce` e verifique se as novas tabelas estão dentro dele.
     
-## Configurar o Microsoft Purview
+## Configurar ACLs mascaramento de dados dinâmicos
 
-O Microsoft Purview é um serviço unificado de governança de dados que ajuda as organizações a gerenciar e proteger seus dados em vários ambientes. Com recursos como prevenção contra perda de dados, proteção de informações e gerenciamento de conformidade, o Microsoft Purview oferece ferramentas para entender, gerenciar e proteger dados em todo o ciclo de vida.
+As ACLs (listas de controle de acesso) são um aspecto fundamental da segurança de dados no Azure Databricks, que permite configurar permissões para vários objetos de workspace. Com o Catálogo do Unity, você pode centralizar a governança e a auditoria do acesso aos dados, fornecendo um modelo de segurança refinado que é essencial para o gerenciamento os ativos de dados e IA. 
 
-1. Navegue até o [Portal do Azure](https://portal.azure.com/).
-
-2. Selecione **Criar um recurso** e pesquise por **Microsoft Purview**.
-
-3. Crie um recurso **Microsoft Purview** com as seguintes configurações:
-    - **Assinatura**: *Selecione sua assinatura do Azure*
-    - **Grupo de recursos**: *escolha o mesmo grupo de recursos que seu workspace do Azure Databricks*
-    - **Nome da conta do Microsoft Purview**: *um nome exclusivo de sua escolha*
-    - **Local**: *selecione a mesma região que o workspace do Azure Databricks*
-
-4. Selecione **Examinar + criar**. Aguarde a validação e selecione **Criar**.
-
-5. Aguarde o fim da implantação. Em seguida, vá para o recurso Microsoft Purview implantado no portal do Azure.
-
-6. No portal de governança do Microsoft Purview, vá até a seção **Mapa de dados** na barra lateral.
-
-7. No painel **Fontes de dados**, selecione **Registrar**.
-
-8. Na janela **Registrar fonte de dados**, pesquise por e selecione o **Azure Databricks**. Selecione **Continuar**.
-
-9. Dê um nome exclusivo à fonte de dados e selecione o workspace do Azure Databricks. Selecione **Registrar**.
-
-## Implementar políticas de privacidade e governança de dados
-
-1. Na seção **Mapa de dados** da barra lateral, selecione **Classificações**.
-
-2. No painel **Classificações**, selecione **+ Novo** e crie uma nova classificação chamada **PII** (Informações de identificação pessoal). Selecione **OK**.
-
-3. Selecione **Catálogo de Dados** na barra lateral e vá até a tabela de **clientes**.
-
-4. Aplique a classificação de PII às colunas de email e telefone.
-
-5. Acesse o Azure Databricks e abra o notebook criado anteriormente.
- 
-6. Em uma nova célula, execute o código a seguir para criar uma política de acesso a dados para restringir o acesso a dados PII.
+1. Em uma nova célula, execute o código a seguir para criar uma exibição segura da tabela `customers` para restringir o acesso a dados de PII (informações de identificação pessoal).
 
      ```sql
-    CREATE OR REPLACE TABLE ecommerce.customers (
-      customer_id STRING,
-      name STRING,
-      email STRING,
-      phone STRING,
-      address STRING,
-      city STRING,
-      state STRING,
-      zip_code STRING,
-      country STRING
-    ) TBLPROPERTIES ('data_classification'='PII');
-
-    GRANT SELECT ON TABLE ecommerce.customers TO ROLE data_scientist;
-    REVOKE SELECT (email, phone) ON TABLE ecommerce.customers FROM ROLE data_scientist;
+    CREATE VIEW ecommerce.customers_secure_view AS
+    SELECT 
+        customer_id, 
+        name, 
+        address,
+        city,
+        state,
+        zip_code,
+        country, 
+        CASE 
+            WHEN current_user() = 'admin_user@example.com' THEN email
+            ELSE NULL 
+        END AS email, 
+        CASE 
+            WHEN current_user() = 'admin_user@example.com' THEN phone 
+            ELSE NULL 
+        END AS phone
+    FROM ecommerce.customers;
      ```
 
-7. Tente consultar a tabela de clientes como um usuário com a função data_scientist. Verifique se o acesso às colunas de PII (email e telefone) é restrito.
+2. Consulte a exibição segura:
+
+     ```sql
+    SELECT * FROM ecommerce.customers_secure_view
+     ```
+
+Verifique se o acesso às colunas de PII (email e telefone) é restrito, pois você não está acessando os dados como `admin_user@example.com`.
 
 ## Limpar
 

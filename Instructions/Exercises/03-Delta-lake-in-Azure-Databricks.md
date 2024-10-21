@@ -1,6 +1,6 @@
 ---
 lab:
-  title: Usar o Delta Lake no Azure Databricks
+  title: Preterido – Usar o Delta Lake no Azure Databricks
 ---
 
 # Usar o Delta Lake no Azure Databricks

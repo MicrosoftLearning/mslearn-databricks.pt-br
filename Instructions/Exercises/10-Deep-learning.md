@@ -1,6 +1,6 @@
 ---
 lab:
-  title: Treinar um modelo de aprendizado profundo
+  title: Preterido – Treinar um modelo de aprendizado profundo
 ---
 
 # Treinar um modelo de aprendizado profundo
