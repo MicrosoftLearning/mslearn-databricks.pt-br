@@ -108,10 +108,10 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
 
 3. Dê um nome ao notebook e selecione `Python` como a linguagem.
 
-4. Na primeira célula de código, insira e execute o seguinte código para instalar as bibliotecas necessárias:
+4. Na primeira célula de código, insira e execute o seguinte código para instalar a biblioteca do OpenAI:
    
      ```python
-    %pip install azure-ai-openai flask
+    %pip install openai
      ```
 
 5. Após a conclusão da instalação, reinicie o kernel em uma nova célula:
@@ -122,80 +122,66 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
 
 ## Registrar o LLM usando o MLflow
 
+Os recursos de rastreamento do LLM do MLflow permitem que você registre parâmetros, métricas, previsões e artefatos. Os parâmetros incluem pares de chave-valor que detalham as configurações de entrada, enquanto as métricas fornecem medidas quantitativas de desempenho. As previsões abrangem os prompts de entrada e as respostas do modelo, armazenados como artefatos para facilitar a recuperação. Esse registro estruturado ajuda a manter um registro detalhado de cada interação, facilitando uma melhor análise e otimização dos LLMs.
+
+1. Em uma nova célula, execute o seguinte código com as informações de acesso copiadas no início deste exercício para atribuir variáveis de ambiente persistentes para autenticação ao usar recursos do OpenAI do Azure:
+
+     ```python
+    import os
+
+    os.environ["AZURE_OPENAI_API_KEY"] = "your_openai_api_key"
+    os.environ["AZURE_OPENAI_ENDPOINT"] = "your_openai_endpoint"
+    os.environ["AZURE_OPENAI_API_VERSION"] = "2023-03-15-preview"
+     ```
 1. Em uma nova célula, execute o seguinte código para inicializar seu cliente do OpenAI do Azure:
 
      ```python
-    from azure.ai.openai import OpenAIClient
+    import os
+    from openai import AzureOpenAI
 
-    client = OpenAIClient(api_key="<Your_API_Key>")
-    model = client.get_model("gpt-3.5-turbo")
+    client = AzureOpenAI(
+       azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
+       api_key = os.getenv("AZURE_OPENAI_API_KEY"),
+       api_version = os.getenv("AZURE_OPENAI_API_VERSION")
+    )
      ```
 
-1. Em uma nova célula, execute o seguinte código para inicializar o acompanhamento do MLflow:     
+1. Em uma nova célula, execute o seguinte código para inicializar o rastreamento do MLflow e registrar o modelo:     
 
      ```python
     import mlflow
+    from openai import AzureOpenAI
 
-    mlflow.set_tracking_uri("databricks")
-    mlflow.start_run()
-     ```
+    system_prompt = "Assistant is a large language model trained by OpenAI."
 
-1. Em uma nova célula, execute o seguinte código para registrar o modelo:
+    mlflow.openai.autolog()
 
-     ```python
-    mlflow.pyfunc.log_model("model", python_model=model)
+    with mlflow.start_run():
+
+        response = client.chat.completions.create(
+            model="gpt-35-turbo",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": "Tell me a joke about animals."},
+            ],
+        )
+
+        print(response.choices[0].message.content)
+        mlflow.log_param("completion_tokens", response.usage.completion_tokens)
     mlflow.end_run()
      ```
 
-## Implantar o modelo
-
-1. Crie um notebook e,na primeira célula, execute o seguinte código para criar uma API REST para o modelo:
-
-     ```python
-    from flask import Flask, request, jsonify
-    import mlflow.pyfunc
-
-    app = Flask(__name__)
-
-    @app.route('/predict', methods=['POST'])
-    def predict():
-        data = request.json
-        model = mlflow.pyfunc.load_model("model")
-        prediction = model.predict(data["input"])
-        return jsonify(prediction)
-
-    if __name__ == '__main__':
-        app.run(host='0.0.0.0', port=5000)
-     ```
+A célula acima iniciará um experimento em seu workspace e registrará os indícios de cada iteração de conclusão de chat, rastreando as entradas, saídas e metadados de cada execução.
 
 ## Monitorar o modelo
 
-1. Em seu primeiro notebook, crie uma nova célula e execute o seguinte código para habilitar o log automático do MLflow:
+1. Na barra lateral à esquerda, selecione **Experimentos** e selecione o experimento associado ao notebook usado para este exercício. Selecione a execução mais recente e verifique na página Visão geral se há um parâmetro registrado: `completion_tokens`. O comando `mlflow.openai.autolog()` registrará os rastreamentos de cada execução por padrão, mas você também pode registrar parâmetros adicionais com `mlflow.log_param()` que podem ser usados posteriormente para monitorar o modelo.
 
-     ```python
-    mlflow.autolog()
-     ```
+1. Selecione a guia **Rastreamentos** e, em seguida, selecione o último criado. Verifique se o parâmetro `completion_tokens` faz parte da saída do rastreamento:
 
-1. Em uma nova célula, execute o código a seguir para acompanhar previsões e dados de entrada.
+   ![Interface do usuário de rastreamento do MLFlow](./images/trace-ui.png)  
 
-     ```python
-    mlflow.log_param("input", data["input"])
-    mlflow.log_metric("prediction", prediction)
-     ```
-
-1. Em uma nova célula, execute o seguinte código para monitorar o descompasso de dados:
-
-     ```python
-    import pandas as pd
-    from evidently.dashboard import Dashboard
-    from evidently.tabs import DataDriftTab
-
-    report = Dashboard(tabs=[DataDriftTab()])
-    report.calculate(reference_data=historical_data, current_data=current_data)
-    report.show()
-     ```
-
-Depois de começar a monitorar o modelo, você pode configurar pipelines de retreinamento automatizados com base na detecção de descompasso de dados.
+Depois de começar a monitorar o modelo, você pode comparar os rastreamentos de diferentes execuções para detectar descompassos de dados. Procure alterações significativas nas distribuições de dados de entrada, previsões de modelo ou métricas de desempenho ao longo do tempo. Você pode usar testes estatísticos ou ferramentas de visualização para auxiliar nessa análise.
 
 ## Limpar
 
