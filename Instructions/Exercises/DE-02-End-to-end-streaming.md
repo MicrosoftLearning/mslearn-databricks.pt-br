@@ -9,6 +9,8 @@ A criação de um pipeline de streaming de ponta a ponta com o Delta Live Tables
 
 Este laboratório levará aproximadamente **30** minutos para ser concluído.
 
+> **Observação**: a interface do usuário do Azure Databricks está sujeita a melhorias contínuas. A interface do usuário pode ter sido alterada desde que as instruções neste exercício foram escritas.
+
 ## Provisionar um workspace do Azure Databricks
 
 > **Dica**: Se você já tem um workspace do Azure Databricks, pode ignorar esse procedimento e usar o workspace existente.
@@ -16,14 +18,13 @@ Este laboratório levará aproximadamente **30** minutos para ser concluído.
 Este exercício inclui um script para provisionar um novo workspace do Azure Databricks. O script tenta criar um recurso de workspace do Azure Databricks de camada *Premium* em uma região na qual sua assinatura do Azure tenha cota suficiente para os núcleos de computação necessários para este exercício; e pressupõe que sua conta de usuário tenha permissões suficientes na assinatura para criar um recurso de workspace do Azure Databricks. Se o script falhar devido a cota ou permissões insuficientes, você pode tentar [criar um workspace do Azure Databricks interativamente no portal do Azure](https://learn.microsoft.com/azure/databricks/getting-started/#--create-an-azure-databricks-workspace).
 
 1. Em um navegador da web, faça logon no [portal do Azure](https://portal.azure.com) em `https://portal.azure.com`.
-
-2. Use o botão **[\>_]** à direita da barra de pesquisa na parte superior da página para criar um Cloud Shell no portal do Azure, selecionando um ambiente ***PowerShell*** e criando um armazenamento caso solicitado. O Cloud Shell fornece uma interface de linha de comando em um painel na parte inferior do portal do Azure, conforme mostrado aqui:
+2. Use o botão **[\>_]** à direita da barra de pesquisa na parte superior da página para criar um Cloud Shell no portal do Azure selecionando um ambiente do ***PowerShell***. O Cloud Shell fornece uma interface de linha de comando em um painel na parte inferior do portal do Azure, conforme mostrado aqui:
 
     ![Portal do Azure com um painel do Cloud Shell](./images/cloud-shell.png)
 
-    > **Observação**: se você tiver criado anteriormente um cloud shell que usa um ambiente *Bash*, use o menu suspenso no canto superior esquerdo do painel do cloud shell para alterá-lo para ***PowerShell***.
+    > **Observação**: se você já criou um Cloud Shell que usa um ambiente *Bash* , alterne-o para o ***PowerShell***.
 
-3. Observe que você pode redimensionar o Cloud Shell arrastando a barra do separador na parte superior do painel ou usando os ícones **&#8212;** , **&#9723;** e **X** no canto superior direito do painel para minimizar, maximizar e fechar o painel. Para obter mais informações de como usar o Azure Cloud Shell, confira a [documentação do Azure Cloud Shell](https://docs.microsoft.com/azure/cloud-shell/overview).
+3. Você pode redimensionar o Cloud Shell arrastando a barra de separação na parte superior do painel ou usando os ícones **&#8212;**, **&#10530;** e **X** no canto superior direito do painel para minimizar, maximizar e fechar o painel. Para obter mais informações de como usar o Azure Cloud Shell, confira a [documentação do Azure Cloud Shell](https://docs.microsoft.com/azure/cloud-shell/overview).
 
 4. No painel do PowerShell, insira os seguintes comandos para clonar esse repositório:
 
@@ -56,9 +57,9 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
 
     > **Dica**: ao usar o portal do workspace do Databricks, várias dicas e notificações podem ser exibidas. Dispense-as e siga as instruções fornecidas para concluir as tarefas neste exercício.
 
-1. Na barra lateral à esquerda, selecione a tarefa **(+) Novo** e, em seguida, selecione **Cluster**.
+1. Na barra lateral à esquerda, selecione a tarefa **(+) Novo** e, em seguida, selecione **Cluster** (talvez você precise procurar no submenu **Mais**).
 
-1. Na página **Novo Cluster**, crie um novo cluster com as seguintes configurações:
+1. Na página **Novo cluster**, crie um novo cluster com as seguintes configurações:
     - **Nome do cluster**: cluster *Nome do Usuário* (o nome do cluster padrão)
     - **Política**: Sem restrições
     - **Modo de cluster**: Nó Único
@@ -75,6 +76,7 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
 ## Criar um notebook e ingerir dados
 
 1. Na barra lateral, use o link **(+) Novo** para criar um **Notebook**. Na lista suspensa **Conectar**, selecione o cluster caso ainda não esteja selecionado. Se o cluster não executar, é porque ele pode levar cerca de um minuto para iniciar.
+2. Altere o nome do notebook padrão (**Notebook sem título *[data]***) para **Ingestão do Delta Live Tables**.
 
 3. Na primeira célula do notebook, insira o código a seguir, que usa os comandos de *shell* para baixar os arquivos de dados do GitHub para o sistema de arquivos usado pelo cluster.
 
@@ -131,20 +133,21 @@ Um pipeline é a unidade principal usada para configurar e executar fluxos de tr
 1. Selecione **Delta Live Tables** na barra lateral esquerda e, em seguida, selecione **Criar pipeline**.
 
 2. Na página **Criar pipeline**, crie um novo pipeline com as seguintes configurações:
-    - **Nome do pipeline**: nomeie o pipeline
+    - **Nome do pipeline**: `Ingestion Pipeline`
     - **Edição do produto**: avançado
     - **Modo do pipeline**: acionado
-    - **Código-fonte**: deixe em branco
+    - **Código-fonte**: *deixe em branco*
     - **Opções de armazenamento**: metastore do Hive
-    - **Local de armazenamento**: dbfs:/pipelines/device_stream
+    - **Local de armazenamento**: `dbfs:/pipelines/device_stream`
+    - **Esquema de destino**: `default`
 
-3. Selecione **Criar**.
+3. Selecione **Criar** para criar o pipeline (que também criará um notebook em branco para o código do pipeline).
 
-4. Depois que o pipeline for criado, abra o link para o notebook em branco em **Código-fonte** no painel à direita:
+4. Depois que o pipeline for criado, abra o link para o notebook em branco em **Código-fonte** no painel à direita. O notebook abrirá em uma nova guia do navegador:
 
     ![delta-live-table-pipeline](./images/delta-live-table-pipeline.png)
 
-5. Na primeira célula do notebook, insira o seguinte código para criar Delta Live Tables e transformar os dados:
+5. Na primeira célula do notebook em branco, insira (mas não execute) o seguinte código para criar Delta Live Tables e transformar os dados:
 
      ```python
     import dlt
@@ -170,12 +173,13 @@ Um pipeline é a unidade principal usada para configurar e executar fluxos de tr
         )
      ```
 
-6. Selecione **Iniciar**.
+6. Feche a guia do navegador que contém o notebook (o conteúdo é salvo automaticamente) e retorne ao pipeline. Em seguida, selecione ** Iniciar **.
 
-7. Depois que o pipeline for executado com êxito, volte para o primeiro notebook e veja que as novas tabelas foram criadas no local de armazenamento especificado com o seguinte código:
+7. Depois que o pipeline for concluído, volte para a **Ingestão de Delta Live Tables** recente que você criou primeiro e verifique se as novas tabelas foram criadas no local de armazenamento especificado executando o seguinte código em uma nova célula:
 
      ```sql
-    display(dbutils.fs.ls("dbfs:/pipelines/device_stream/tables"))
+    %sql
+    SHOW TABLES
      ```
 
 ## Exibir resultados como uma visualização
@@ -185,8 +189,8 @@ Depois de criar as tabelas, é possível carregá-las em dataframes e visualizar
 1. No primeiro notebook, adicione uma nova célula de código e execute o seguinte código para carregar o `transformed_iot_data` em um dataframe:
 
     ```python
-   df = spark.read.format("delta").load('/pipelines/device_stream/tables/transformed_iot_data')
-   display(df)
+    %sql
+    SELECT * FROM transformed_iot_data
     ```
 
 1. Acima da tabela de resultados, selecione **+** e, em seguida, selecione **Visualização** para exibir o editor de visualização e aplique as seguintes opções:
@@ -195,6 +199,12 @@ Depois de criar as tabelas, é possível carregá-las em dataframes e visualizar
     - **Coluna Y**: *adicione uma nova coluna e selecione***temperature_fahrenheit**. *Aplicar a* **Agregação** de *soma*.
 
 1. Salve a visualização para exibir o gráfico resultante no notebook.
+1. Adicione uma nova célula de código e insira o seguinte código para interromper a consulta de streaming:
+
+    ```python
+    query.stop()
+    ```
+    
 
 ## Limpar
 

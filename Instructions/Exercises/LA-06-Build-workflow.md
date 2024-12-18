@@ -9,6 +9,8 @@ Os fluxos de trabalho do Azure Databricks fornecem uma plataforma robusta para i
 
 Este laboratório levará aproximadamente **40** minutos para ser concluído.
 
+> **Observação**: a interface do usuário do Azure Databricks está sujeita a melhorias contínuas. A interface do usuário pode ter sido alterada desde que as instruções neste exercício foram escritas.
+
 ## Provisionar um workspace do Azure Databricks
 
 > **Dica**: Se você já tem um workspace do Azure Databricks, pode ignorar esse procedimento e usar o workspace existente.
@@ -16,14 +18,13 @@ Este laboratório levará aproximadamente **40** minutos para ser concluído.
 Este exercício inclui um script para provisionar um novo workspace do Azure Databricks. O script tenta criar um recurso de workspace do Azure Databricks de camada *Premium* em uma região na qual sua assinatura do Azure tenha cota suficiente para os núcleos de computação necessários para este exercício; e pressupõe que sua conta de usuário tenha permissões suficientes na assinatura para criar um recurso de workspace do Azure Databricks. Se o script falhar devido a cota ou permissões insuficientes, você pode tentar [criar um workspace do Azure Databricks interativamente no portal do Azure](https://learn.microsoft.com/azure/databricks/getting-started/#--create-an-azure-databricks-workspace).
 
 1. Em um navegador da web, faça logon no [portal do Azure](https://portal.azure.com) em `https://portal.azure.com`.
-
-2. Use o botão **[\>_]** à direita da barra de pesquisa na parte superior da página para criar um Cloud Shell no portal do Azure, selecionando um ambiente ***PowerShell*** e criando um armazenamento caso solicitado. O Cloud Shell fornece uma interface de linha de comando em um painel na parte inferior do portal do Azure, conforme mostrado aqui:
+2. Use o botão **[\>_]** à direita da barra de pesquisa na parte superior da página para criar um Cloud Shell no portal do Azure selecionando um ambiente do ***PowerShell***. O Cloud Shell fornece uma interface de linha de comando em um painel na parte inferior do portal do Azure, conforme mostrado aqui:
 
     ![Portal do Azure com um painel do Cloud Shell](./images/cloud-shell.png)
 
-    > **Observação**: Se você tiver criado anteriormente um shell de nuvem que usa um ambiente *Bash*, use o menu suspenso no canto superior esquerdo do painel do shell de nuvem para alterá-lo para ***PowerShell***.
+    > **Observação**: se você já criou um Cloud Shell que usa um ambiente *Bash*, alterne-o para o ***PowerShell***.
 
-3. Observe que você pode redimensionar o Cloud Shell arrastando a barra do separador na parte superior do painel ou usando os ícones **&#8212;** , **&#9723;** e **X** no canto superior direito do painel para minimizar, maximizar e fechar o painel. Para obter mais informações de como usar o Azure Cloud Shell, confira a [documentação do Azure Cloud Shell](https://docs.microsoft.com/azure/cloud-shell/overview).
+3. Você pode redimensionar o Cloud Shell arrastando a barra de separação na parte superior do painel ou usando os ícones **&#8212;**, **&#10530;** e **X** no canto superior direito do painel para minimizar, maximizar e fechar o painel. Para obter mais informações de como usar o Azure Cloud Shell, confira a [documentação do Azure Cloud Shell](https://docs.microsoft.com/azure/cloud-shell/overview).
 
 4. No painel do PowerShell, insira os seguintes comandos para clonar esse repositório:
 
@@ -40,7 +41,7 @@ Este exercício inclui um script para provisionar um novo workspace do Azure Da
 
 6. Se solicitado, escolha qual assinatura você deseja usar (isso só acontecerá se você tiver acesso a várias assinaturas do Azure).
 
-7. Aguarde a conclusão do script - isso normalmente leva cerca de 5 minutos, mas em alguns casos pode levar mais tempo. Enquanto você aguarda, revise o artigo [Introdução ao Delta Lake](https://docs.microsoft.com/azure/databricks/delta/delta-intro) na documentação do Azure Databricks.
+7. Aguarde a conclusão do script – isso normalmente leva cerca de 5 minutos, mas em alguns casos pode levar mais tempo. Enquanto você aguarda, revise o artigo [Agendar e orquestrar fluxos de trabalho](https://learn.microsoft.com/azure/databricks/jobs/) na documentação do Azure Databricks.
 
 ## Criar um cluster
 
@@ -56,9 +57,9 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
 
     > **Dica**: ao usar o portal do workspace do Databricks, várias dicas e notificações podem ser exibidas. Dispense-as e siga as instruções fornecidas para concluir as tarefas neste exercício.
 
-1. Na barra lateral à esquerda, selecione a tarefa **(+) Novo** e, em seguida, selecione **Cluster**.
+1. Na barra lateral à esquerda, selecione a tarefa **(+) Novo** e, em seguida, selecione **Cluster** (talvez você precise procurar no submenu **Mais**).
 
-1. Na página **Novo Cluster**, crie um novo cluster com as seguintes configurações:
+1. Na página **Novo cluster**, crie um novo cluster com as seguintes configurações:
     - **Nome do cluster**: cluster *Nome do Usuário* (o nome do cluster padrão)
     - **Política**: Sem restrições
     - **Modo de cluster**: Nó Único
@@ -99,7 +100,9 @@ Implemente o fluxo de trabalho de processamento e análise de dados usando taref
 
 2. Altere o nome padrão do notebook (**Notebook Sem Título *[data]***) para `ETL task` e, na lista suspensa **Conectar**, selecione o cluster, caso ainda não esteja selecionado. Se o cluster não executar, é porque ele pode levar cerca de um minuto para iniciar.
 
-3. Na primeira célula do notebook, insira o seguinte código, que define um esquema para os dados e carrega os conjuntos de dados em um dataframe:
+    Confirme se a linguagem padrão do notebook está definida como **Python**.
+
+3. Na primeira célula do notebook, insira e execute o seguinte código, que define um esquema para os dados e carrega os conjuntos de dados em um dataframe:
 
     ```python
    from pyspark.sql.types import *
@@ -119,7 +122,7 @@ Implemente o fluxo de trabalho de processamento e análise de dados usando taref
    display(df.limit(100))
     ```
 
-4. Na célula de código existente, use o ícone **+** para adicionar uma nova célula de código. Em seguida, na nova célula, insira e execute o seguinte código para remover linhas duplicadas e substituir as entradas `null` pelos valores corretos:
+4. Na célula de código existente, use o ícone **+ Código** para adicionar uma nova célula de código. Em seguida, na nova célula, insira e execute o seguinte código para remover linhas duplicadas e substituir as entradas `null` pelos valores corretos:
 
      ```python
     from pyspark.sql.functions import col
@@ -136,18 +139,6 @@ Implemente o fluxo de trabalho de processamento e análise de dados usando taref
    display(yearlySales)
     ```
 
-6. Acima da tabela de resultados, selecione **+** e, em seguida, selecione **Visualização** para exibir o editor de visualização e aplique as seguintes opções:
-
-   Guia **Geral**:
-    - **Tipo de visualização**: Barra
-    - **Coluna X**: ano
-    - **Coluna Y**: *adicione uma nova coluna e clique em***quantidade**. *Aplicar a* **Agregação** de *soma*.
-   
-   Guia do **eixo X**:
-    - **Escala**: Categórica
-
-8. Selecione **Salvar**.
-
 ## Criar o fluxo de trabalho
 
 O Azure Databricks gerencia a orquestração de tarefas, o gerenciamento de clusters, o monitoramento e o relatório de erros para todos os seus trabalhos. Você pode executar seus trabalhos imediatamente, periodicamente por meio de um sistema de agendamento fácil de usar, sempre que novos arquivos chegarem em um local externo ou continuamente para garantir que uma instância do trabalho esteja sempre em execução.
@@ -158,24 +149,23 @@ O Azure Databricks gerencia a orquestração de tarefas, o gerenciamento de clus
 
 3. Altere o nome do trabalho padrão (**Novo trabalho *[data]***) para `ETL job`.
 
-4. No campo **Nome da tarefa**, insira um nome para a tarefa.
+4. Defina o trabalho com as seguintes configurações:
+    - **Nome da tarefa:**: `Run ETL task notebook`
+    - **Tipo**: Notebook
+    - **Fonte**: Workspace
+    - **Caminho**: *selecione o notebook* Tarefa de ETL**
+    - **Cluster**: *Selecione seu cluster*
 
-5. No menu suspenso **Tipo**, selecione **Notebook**.
+5. Selecione **Criar tarefa**.
 
-6. No campo **Caminho**, selecione o notebook **tarefa de ETL**.
+6. Selecione **Executar agora**.
 
-7. Selecione **Criar tarefa**.
+7. Depois que o trabalho começar a ser executado, você poderá monitorar a execução clicando em **Execuções de trabalho** na barra lateral esquerda.
 
-8. Selecione **Executar agora**.
+8. Após a execução do trabalho, você poderá selecioná-lo e verificar a saída.
 
-9. Depois que o trabalho começar a ser executado, você poderá monitorar a execução clicando em **Execuções de trabalho** na barra lateral esquerda.
+Além disso, você pode executar trabalhos que forem disparados, por exemplo, executando um fluxo de trabalho em uma agenda. Para agendar uma execução periódica do trabalho, você pode abrir a tarefa do trabalho e adicionar um gatilho.
 
-10. Após a execução do trabalho, você poderá selecioná-lo e verificar a saída.
-
-Além disso, você pode executar trabalhos que forem disparados, por exemplo, executando um fluxo de trabalho em uma agenda. Para agendar uma execução periódica do trabalho, você pode abrir a tarefa do trabalho e selecionar **Adicionar gatilho** no painel do lado direito.
-
-   ![Painel de tarefas do fluxo de trabalho](./images/workflow-schedule.png)
-    
 ## Limpar
 
 No portal do Azure Databricks, na página **Computação**, selecione seu cluster e selecione **&#9632; Interromper** para encerrar o processo.

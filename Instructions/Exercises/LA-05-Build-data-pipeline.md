@@ -9,6 +9,8 @@ As Tabelas Dinâmicas Delta são uma estrutura declarativa para a criação de p
 
 Este laboratório levará aproximadamente **40** minutos para ser concluído.
 
+> **Observação**: a interface do usuário do Azure Databricks está sujeita a melhorias contínuas. A interface do usuário pode ter sido alterada desde que as instruções neste exercício foram escritas.
+
 ## Provisionar um workspace do Azure Databricks
 
 > **Dica**: Se você já tem um workspace do Azure Databricks, pode ignorar esse procedimento e usar o workspace existente.
@@ -16,14 +18,13 @@ Este laboratório levará aproximadamente **40** minutos para ser concluído.
 Este exercício inclui um script para provisionar um novo workspace do Azure Databricks. O script tenta criar um recurso de workspace do Azure Databricks de camada *Premium* em uma região na qual sua assinatura do Azure tenha cota suficiente para os núcleos de computação necessários para este exercício; e pressupõe que sua conta de usuário tenha permissões suficientes na assinatura para criar um recurso de workspace do Azure Databricks. Se o script falhar devido a cota ou permissões insuficientes, você pode tentar [criar um workspace do Azure Databricks interativamente no portal do Azure](https://learn.microsoft.com/azure/databricks/getting-started/#--create-an-azure-databricks-workspace).
 
 1. Em um navegador da web, faça logon no [portal do Azure](https://portal.azure.com) em `https://portal.azure.com`.
-
-2. Use o botão **[\>_]** à direita da barra de pesquisa na parte superior da página para criar um Cloud Shell no portal do Azure, selecionando um ambiente ***PowerShell*** e criando um armazenamento caso solicitado. O Cloud Shell fornece uma interface de linha de comando em um painel na parte inferior do portal do Azure, conforme mostrado aqui:
+2. Use o botão **[\>_]** à direita da barra de pesquisa na parte superior da página para criar um Cloud Shell no portal do Azure selecionando um ambiente do ***PowerShell***. O Cloud Shell fornece uma interface de linha de comando em um painel na parte inferior do portal do Azure, conforme mostrado aqui:
 
     ![Portal do Azure com um painel do Cloud Shell](./images/cloud-shell.png)
 
-    > **Observação**: Se você tiver criado anteriormente um shell de nuvem que usa um ambiente *Bash*, use o menu suspenso no canto superior esquerdo do painel do shell de nuvem para alterá-lo para ***PowerShell***.
+    > **Observação**: se você já criou um Cloud Shell que usa um ambiente *Bash*, alterne-o para o ***PowerShell***.
 
-3. Observe que você pode redimensionar o Cloud Shell arrastando a barra do separador na parte superior do painel ou usando os ícones **&#8212;** , **&#9723;** e **X** no canto superior direito do painel para minimizar, maximizar e fechar o painel. Para obter mais informações de como usar o Azure Cloud Shell, confira a [documentação do Azure Cloud Shell](https://docs.microsoft.com/azure/cloud-shell/overview).
+3. Você pode redimensionar o Cloud Shell arrastando a barra de separação na parte superior do painel ou usando os ícones **&#8212;**, **&#10530;** e **X** no canto superior direito do painel para minimizar, maximizar e fechar o painel. Para obter mais informações de como usar o Azure Cloud Shell, confira a [documentação do Azure Cloud Shell](https://docs.microsoft.com/azure/cloud-shell/overview).
 
 4. No painel do PowerShell, insira os seguintes comandos para clonar esse repositório:
 
@@ -40,7 +41,7 @@ Este exercício inclui um script para provisionar um novo workspace do Azure Da
 
 6. Se solicitado, escolha qual assinatura você deseja usar (isso só acontecerá se você tiver acesso a várias assinaturas do Azure).
 
-7. Aguarde a conclusão do script - isso normalmente leva cerca de 5 minutos, mas em alguns casos pode levar mais tempo. Enquanto você aguarda, revise o artigo [Introdução ao Delta Lake](https://docs.microsoft.com/azure/databricks/delta/delta-intro) na documentação do Azure Databricks.
+7. Aguarde a conclusão do script – isso normalmente leva cerca de 5 minutos, mas em alguns casos pode levar mais tempo. Enquanto espera, revise o artigo [O que é o Delta Live Tables?](https://learn.microsoft.com/azure/databricks/delta-live-tables/) na documentação do Azure Databricks.
 
 ## Criar um cluster
 
@@ -56,9 +57,9 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
 
     > **Dica**: ao usar o portal do workspace do Databricks, várias dicas e notificações podem ser exibidas. Dispense-as e siga as instruções fornecidas para concluir as tarefas neste exercício.
 
-1. Na barra lateral à esquerda, selecione a tarefa **(+) Novo** e, em seguida, selecione **Cluster**.
+1. Na barra lateral à esquerda, selecione a tarefa **(+) Novo** e, em seguida, selecione **Cluster** (talvez você precise procurar no submenu **Mais**).
 
-1. Na página **Novo Cluster**, crie um novo cluster com as seguintes configurações:
+1. Na página **Novo cluster**, crie um novo cluster com as seguintes configurações:
     - **Nome do cluster**: cluster *Nome do Usuário* (o nome do cluster padrão)
     - **Política**: Sem restrições
     - **Modo de cluster**: Nó Único
@@ -91,11 +92,11 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
 
 ## Criar pipeline do Delta Live Tables usando SQL
 
-Crie um novo notebook e comece a definir o Delta Live Tables usando scripts SQL.
+1. Crie um novo notebook e renomeie-o para `Pipeline Notebook`.
 
 1. Ao lado do nome do notebook, selecione **Python** e altere o idioma padrão para **SQL**.
 
-1. Coloque o código a seguir na primeira célula, mas não execute-o. Todas as células serão executadas após a criação do pipeline. Esse código define uma tabela do Delta Live que será preenchida pelos dados brutos baixados anteriormente:
+1. Insira o código a seguir na primeira célula, mas não execute-o. Todas as células serão executadas após a criação do pipeline. Esse código define uma tabela do Delta Live que será preenchida pelos dados brutos baixados anteriormente:
 
      ```sql
     CREATE OR REFRESH LIVE TABLE raw_covid_data
@@ -110,7 +111,7 @@ Crie um novo notebook e comece a definir o Delta Live Tables usando scripts SQL.
     FROM read_files('dbfs:/delta_lab/covid_data.csv', format => 'csv', header => true)
      ```
 
-2. Adicione uma nova célula e use o código a seguir para consultar, filtrar e formatar os dados na tabela anterior antes da análise.
+1. Na primeira célula, use o ícone **+ Código** para adicionar uma nova célula e insira o código a seguir para consultar, filtrar e formatar os dados na tabela anterior antes da análise.
 
      ```sql
     CREATE OR REFRESH LIVE TABLE processed_covid_data(
@@ -127,7 +128,7 @@ Crie um novo notebook e comece a definir o Delta Live Tables usando scripts SQL.
     FROM live.raw_covid_data;
      ```
 
-3. Em uma nova célula de código, insira o código a seguir que criará uma exibição de dados enriquecida para análise posterior depois que o pipeline for executado.
+1. Em uma terceira célula de código, insira o código a seguir que criará uma exibição de dados enriquecida para análise posterior depois que o pipeline for executado.
 
      ```sql
     CREATE OR REFRESH LIVE TABLE aggregated_covid_data
@@ -142,33 +143,43 @@ Crie um novo notebook e comece a definir o Delta Live Tables usando scripts SQL.
     GROUP BY Report_Date;
      ```
      
-4. Selecione **Delta Live Tables** na barra lateral esquerda e, em seguida, selecione **Criar pipeline**.
+1. Selecione **Delta Live Tables** na barra lateral esquerda e, em seguida, selecione **Criar pipeline**.
 
-5. Na página **Criar pipeline**, crie um novo pipeline com as seguintes configurações:
-    - **Nome do pipeline**: nomeie o pipeline
+1. Na página **Criar pipeline**, crie um novo pipeline com as seguintes configurações:
+    - **Nome do pipeline**: `Covid Pipeline`
     - **Edição do produto**: avançado
-    - **Modo do pipeline**: Acionado
-    - **Código-fonte**: selecione seu notebook SQL
+    - **Modo do pipeline**: acionado
+    - **Código-fonte**: *navegue até* o notebook Notebook do Pipeline *na pasta*Users/user@name *.*
     - **Opções de armazenamento**: metastore do Hive
-    - **Local de armazenamento**: dbfs:/pipelines/delta_lab
+    - **Local de armazenamento**: `dbfs:/pipelines/delta_lab`
+    - **Esquema de destino**: *Insira*`default`
 
-6. Selecione **Criar** e depois **Iniciar**.
+1. Selecione **Criar** e depois **Iniciar**. Em seguida, aguarde a execução do pipeline (o que pode levar algum tempo).
  
-7. Depois que o pipeline for executado, volte para o primeiro notebook e verifique se as três novas tabelas foram criadas no local de armazenamento especificado com o seguinte código:
+1. Depois que o pipeline for executado, volte para o notebook *Criar um pipeline com Delta Live tables* que você criou primeiro e execute o seguinte código em uma nova célula para verificar que os arquivos das três novas tabelas foram criados no local de armazenamento especificado:
 
      ```python
     display(dbutils.fs.ls("dbfs:/pipelines/delta_lab/tables"))
+     ```
+
+1. Adicione outra célula de código e execute o seguinte código para verificar se as tabelas foram criadas no banco de dados **padrão**:
+
+     ```sql
+    %sql
+
+    SHOW TABLES
      ```
 
 ## Exibir resultados como uma visualização
 
 Depois de criar as tabelas, é possível carregá-las em dataframes e visualizar os dados.
 
-1. No primeiro notebook, adicione uma nova célula de código e execute o seguinte código para carregar o `aggregated_covid_data` em um dataframe:
+1. No notebook *Cirar um pipeline com Delta Live tables*, adicione uma nova célula de código e execute o seguinte código para carregar o `aggregated_covid_data` em um dataframe:
 
-    ```python
-   df = spark.read.format("delta").load('/pipelines/delta_lab/tables/aggregated_covid_data')
-   display(df)
+    ```sql
+    %sql
+    
+    SELECT * FROM aggregated_covid_data
     ```
 
 1. Acima da tabela de resultados, selecione **+** e, em seguida, selecione **Visualização** para exibir o editor de visualização e aplique as seguintes opções:

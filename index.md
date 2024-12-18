@@ -10,8 +10,8 @@ Esses exercícios foram projetados para dar suporte ao seguinte conteúdo de tre
 
 - [Implementar uma solução de análise de data lakehouse com o Azure Databricks](https://learn.microsoft.com/training/paths/data-engineer-azure-databricks/)
 - [Implementar uma solução de aprendizado de máquina com o Azure Databricks](https://learn.microsoft.com/training/paths/build-operate-machine-learning-solutions-azure-databricks/)
-- [Implementar uma solução de engenharia de dados com o Azure Databricks](https://learn.microsoft.com/en-us/training/paths/azure-databricks-data-engineer/)
-- [Implementar a engenharia de IA Generativa com o Azure Databricks](https://learn.microsoft.com/en-us/training/paths/implement-generative-ai-engineering-azure-databricks/)
+- [Implementar uma solução de engenharia de dados com o Azure Databricks](https://learn.microsoft.com/training/paths/azure-databricks-data-engineer/)
+- [Implementar a engenharia de IA Generativa com o Azure Databricks](https://learn.microsoft.com/training/paths/implement-generative-ai-engineering-azure-databricks/)
 
 Você precisará de uma assinatura do Azure na qual tenha acesso administrativo para concluir esses exercícios.
 
