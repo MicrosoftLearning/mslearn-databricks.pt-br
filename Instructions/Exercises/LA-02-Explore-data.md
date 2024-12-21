@@ -7,11 +7,11 @@ lab:
 
 O Azure Databricks é uma versão baseada no Microsoft Azure da popular plataforma de código aberto Databricks. 
 
-O Azure Databricks facilita a EDA (análise exploratória de dados), permitindo que os usuários descubram insights rapidamente e promovam a tomada de decisões. 
-
-O serviço se integra a uma variedade de ferramentas e técnicas de EDA, incluindo métodos estatísticos e visualizações, para resumir as características dos dados e identificar quaisquer problemas subjacentes.
+O Azure Databricks facilita a EDA (análise exploratória de dados), permitindo que os usuários descubram insights rapidamente e promovam a tomada de decisões. O serviço se integra a uma variedade de ferramentas e técnicas de EDA, incluindo métodos estatísticos e visualizações, para resumir as características dos dados e identificar quaisquer problemas subjacentes.
 
 Este exercício deve levar aproximadamente **30** minutos para ser concluído.
+
+> **Observação**: a interface do usuário do Azure Databricks está sujeita a melhorias contínuas. A interface do usuário pode ter sido alterada desde que as instruções neste exercício foram escritas.
 
 ## Provisionar um workspace do Azure Databricks
 
@@ -22,13 +22,13 @@ Este exercício inclui um script para provisionar um novo workspace do Azure Da
 Se o script falhar devido a cota ou permissões insuficientes, você pode tentar [criar um workspace do Azure Databricks interativamente no portal do Azure](https://learn.microsoft.com/azure/databricks/getting-started/#--create-an-azure-databricks-workspace).
 
 1. Em um navegador da web, faça logon no [portal do Azure](https://portal.azure.com) em `https://portal.azure.com`.
-2. Use o botão **[\>_]** à direita da barra de pesquisa na parte superior da página para criar um Cloud Shell no portal do Azure, selecionando um ambiente ***PowerShell*** e criando um armazenamento caso solicitado. O Cloud Shell fornece uma interface de linha de comando em um painel na parte inferior do portal do Azure, conforme mostrado aqui:
+2. Use o botão **[\>_]** à direita da barra de pesquisa na parte superior da página para criar um Cloud Shell no portal do Azure selecionando um ambiente do ***PowerShell***. O Cloud Shell fornece uma interface de linha de comando em um painel na parte inferior do portal do Azure, conforme mostrado aqui:
 
     ![Portal do Azure com um painel do Cloud Shell](./images/cloud-shell.png)
 
-    > **Observação**: Se você tiver criado anteriormente um shell de nuvem que usa um ambiente *Bash*, use o menu suspenso no canto superior esquerdo do painel do shell de nuvem para alterá-lo para ***PowerShell***.
+    > **Observação**: se você já criou um Cloud Shell que usa um ambiente *Bash*, alterne-o para o ***PowerShell***.
 
-3. Observe que você pode redimensionar o Cloud Shell arrastando a barra do separador na parte superior do painel ou usando os ícones **&#8212;** , **&#9723;** e **X** no canto superior direito do painel para minimizar, maximizar e fechar o painel. Para obter mais informações de como usar o Azure Cloud Shell, confira a [documentação do Azure Cloud Shell](https://docs.microsoft.com/azure/cloud-shell/overview).
+3. Você pode redimensionar o Cloud Shell arrastando a barra de separação na parte superior do painel ou usando os ícones **&#8212;**, **&#10530;** e **X** no canto superior direito do painel para minimizar, maximizar e fechar o painel. Para obter mais informações de como usar o Azure Cloud Shell, confira a [documentação do Azure Cloud Shell](https://docs.microsoft.com/azure/cloud-shell/overview).
 
 4. No painel do PowerShell, insira os seguintes comandos para clonar esse repositório:
 
@@ -60,8 +60,8 @@ Neste exercício, você criará um cluster de *nó único* para minimizar os rec
 
     > **Dica**: ao usar o portal do workspace do Databricks, várias dicas e notificações podem ser exibidas. Dispense-as e siga as instruções fornecidas para concluir as tarefas neste exercício.
 
-1. Na barra lateral à esquerda, selecione a tarefa **(+) Novo** e, em seguida, selecione **Cluster**.
-1. Na página **Novo Cluster**, crie um novo cluster com as seguintes configurações:
+1. Na barra lateral à esquerda, selecione a tarefa **(+) Novo** e, em seguida, selecione **Cluster** (talvez você precise procurar no submenu **Mais**).
+1. Na página **Novo cluster**, crie um novo cluster com as seguintes configurações:
     - **Nome do cluster**: cluster *Nome do Usuário* (o nome do cluster padrão)
     - **Política**: Sem restrições
     - **Modo de cluster**: Nó Único
@@ -98,7 +98,7 @@ Neste exercício, você criará um cluster de *nó único* para minimizar os rec
 
 ## Consultar dados em arquivos
 
-1. Na célula de código existente, use o ícone **+** para adicionar uma nova célula de código. Então, na nova célula, insira e execute o código a seguir para carregar os dados dos arquivos e exibir as primeiras 100 linhas.
+1. Passe o mouse sob a célula de código existente e use o ícone **+ Código** exibido para adicionar uma nova célula de código. Então, na nova célula, insira e execute o código a seguir para carregar os dados dos arquivos e exibir as primeiras 100 linhas.
 
     ```python
    df = spark.read.load('spark_lab/*.csv', format='csv')

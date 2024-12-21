@@ -9,6 +9,8 @@ A análise em vários estágios é uma abordagem de ponta em IA que envolve a di
 
 Este laboratório levará aproximadamente **30** minutos para ser concluído.
 
+> **Observação**: a interface do usuário do Azure Databricks está sujeita a melhorias contínuas. A interface do usuário pode ter sido alterada desde que as instruções neste exercício foram escritas.
+
 ## Antes de começar
 
 É necessário ter uma [assinatura do Azure](https://azure.microsoft.com/free) com acesso de nível administrativo.
