@@ -1,9 +1,9 @@
 ---
 lab:
-  title: Ingestão e processamento em tempo real com o Spark Structured Streaming e o Delta Lake com o Azure Databricks
+  title: Processamento de dados em tempo real com streaming estruturado do Spark e Delta Lake com Azure Databricks
 ---
 
-# Ingestão e processamento em tempo real com o Spark Structured Streaming e o Delta Lake com o Azure Databricks
+# Processamento de dados em tempo real com streaming estruturado do Spark e Delta Lake com Azure Databricks
 
 Com o Spark Structured Streaming, você pode processar dados em tempo real com tolerância a falhas de ponta a ponta. O Delta Lake aprimora isso fornecendo uma camada de armazenamento com transações ACID, garantindo a integridade e a consistência dos dados. Você pode assimilar dados do armazenamento em nuvem no Delta Lake e usar o Delta Live Tables para gerenciar e otimizar os pipelines de dados de streaming.
 
@@ -22,7 +22,7 @@ Este exercício inclui um script para provisionar um novo workspace do Azure Da
 
     ![Portal do Azure com um painel do Cloud Shell](./images/cloud-shell.png)
 
-    > **Observação**: se você já criou um Cloud Shell que usa um ambiente *Bash* , alterne-o para o ***PowerShell***.
+    > **Observação**: se você já criou um Cloud Shell que usa um ambiente *Bash*, alterne-o para o ***PowerShell***.
 
 3. Você pode redimensionar o Cloud Shell arrastando a barra de separação na parte superior do painel ou usando os ícones **&#8212;**, **&#10530;** e **X** no canto superior direito do painel para minimizar, maximizar e fechar o painel. Para obter mais informações de como usar o Azure Cloud Shell, confira a [documentação do Azure Cloud Shell](https://docs.microsoft.com/azure/cloud-shell/overview).
 
@@ -41,7 +41,7 @@ Este exercício inclui um script para provisionar um novo workspace do Azure Da
 
 6. Se solicitado, escolha qual assinatura você deseja usar (isso só acontecerá se você tiver acesso a várias assinaturas do Azure).
 
-7. Aguarde a conclusão do script - isso normalmente leva cerca de 5 minutos, mas em alguns casos pode levar mais tempo. Enquanto você aguarda, revise o artigo [Introdução ao Delta Lake](https://docs.microsoft.com/azure/databricks/delta/delta-intro) na documentação do Azure Databricks.
+7. Aguarde a conclusão do script – isso normalmente leva cerca de 5 minutos, mas em alguns casos pode levar mais tempo. Enquanto espera, revise o artigo [Consultar dados de streaming](https://learn.microsoft.com/azure/databricks/query/streaming) na documentação do Azure Databricks.
 
 ## Criar um cluster
 

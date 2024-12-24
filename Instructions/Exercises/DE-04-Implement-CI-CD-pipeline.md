@@ -11,7 +11,7 @@ Este laboratório levará aproximadamente **40** minutos para ser concluído.
 
 > **Observação**: a interface do usuário do Azure Databricks está sujeita a melhorias contínuas. A interface do usuário pode ter sido alterada desde que as instruções neste exercício foram escritas.
 
->**Observação:** você precisa de uma conta do Github para concluir este exercício.
+> **Observação:** você precisa de uma conta do GitHub e um cliente Git (como a ferramenta de linha de comando do Git) instalados no computador local para concluir este exercício.
 
 ## Provisionar um workspace do Azure Databricks
 
@@ -43,7 +43,7 @@ Este exercício inclui um script para provisionar um novo workspace do Azure Da
 
 6. Se solicitado, escolha qual assinatura você deseja usar (isso só acontecerá se você tiver acesso a várias assinaturas do Azure).
 
-7. Aguarde a conclusão do script - isso normalmente leva cerca de 5 minutos, mas em alguns casos pode levar mais tempo. Enquanto você aguarda, revise o artigo [Introdução ao Delta Lake](https://docs.microsoft.com/azure/databricks/delta/delta-intro) na documentação do Azure Databricks.
+7. Aguarde a conclusão do script – isso normalmente leva cerca de 5 minutos, mas em alguns casos pode levar mais tempo. Enquanto aguarda, examine o artigo [Executar um fluxo de trabalho de CI/CD com um pacote de ativos do Databricks e o GitHub Actions](https://learn.microsoft.com/azure/databricks/dev-tools/bundles/ci-cd-bundles) na documentação do Azure Databricks.
 
 ## Criar um cluster
 
@@ -59,9 +59,9 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
 
     > **Dica**: ao usar o portal do workspace do Databricks, várias dicas e notificações podem ser exibidas. Dispense-as e siga as instruções fornecidas para concluir as tarefas neste exercício.
 
-1. Na barra lateral à esquerda, selecione a tarefa **(+) Novo** e, em seguida, selecione **Cluster**.
+1. Na barra lateral à esquerda, selecione a tarefa **(+) Novo** e, em seguida, selecione **Cluster** (talvez você precise procurar no submenu **Mais**).
 
-1. Na página **Novo Cluster**, crie um novo cluster com as seguintes configurações:
+1. Na página **Novo cluster**, crie um novo cluster com as seguintes configurações:
     - **Nome do cluster**: cluster *Nome do Usuário* (o nome do cluster padrão)
     - **Política**: Sem restrições
     - **Modo de cluster**: Nó Único
@@ -77,9 +77,9 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
 
 ## Criar um notebook e ingerir dados
 
-1. Na barra lateral, use o link **(+) Novo** para criar um **Notebook**. Na lista suspensa **Conectar**, selecione o cluster caso ainda não esteja selecionado. Se o cluster não executar, é porque ele pode levar cerca de um minuto para iniciar.
+1. Na barra lateral, use o link **(+) Novo** para criar um **Notebook** e altere o nome padrão do notebook (**Notebook sem título *[data]***) para **Notebook CICD**. Em seguida, na lista suspensa **Conectar**, selecione o cluster caso ainda não esteja selecionado. Se o cluster não executar, é porque ele pode levar cerca de um minuto para iniciar.
 
-2. Na primeira célula do notebook, insira o código a seguir, que usa os comandos de *shell* para baixar os arquivos de dados do GitHub para o sistema de arquivos usado pelo cluster.
+1. Na primeira célula do notebook, insira o código a seguir, que usa os comandos de *shell* para baixar os arquivos de dados do GitHub para o sistema de arquivos usado pelo cluster.
 
      ```python
     %sh
@@ -88,22 +88,22 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
     wget -O /dbfs/FileStore/sample_sales.csv https://github.com/MicrosoftLearning/mslearn-databricks/raw/main/data/sample_sales.csv
      ```
 
-3. Use a opção de menu **&#9656; Executar Célula** à esquerda da célula para executá-la. Em seguida, aguarde o término do trabalho do Spark executado pelo código.
+1. Use a opção de menu **&#9656; Executar Célula** à esquerda da célula para executá-la. Em seguida, aguarde o término do trabalho do Spark executado pelo código.
    
 ## Configurar um repositório do GitHub
 
 Depois de conectar um repositório GitHub a um espaço de trabalho do Azure Databricks, você pode configurar pipelines de CI/CD no GitHub Actions que são disparados com quaisquer alterações feitas no seu repositório.
 
-1. Acesse sua [conta do GitHub](https://github.com/) e crie um novo repositório para seu projeto.
+1. Vá para sua [conta do GitHub](https://github.com/) e crie um novo repositório privado com um nome adequado (por exemplo, *databricks-cicd-repo*).
 
-2. Clone o repositório em seu computador local usando `git clone`.
+1. Clone o repositório vazio em sua máquina local, usando o comando [git clone](https://git-scm.com/docs/git-clone).
 
-3. Faça download dos arquivos necessários para este exercício em seu repositório local:
+1. Faça download dos arquivos necessários para este exercício na pasta local de seu repositório:
    - [Arquivo CSV](https://github.com/MicrosoftLearning/mslearn-databricks/raw/main/data/sample_sales.csv)
    - [Databricks notebook](https://github.com/MicrosoftLearning/mslearn-databricks/raw/main/data/sample_sales_notebook.dbc)
    - [Arquivo de configuração do trabalho](https://github.com/MicrosoftLearning/mslearn-databricks/raw/main/data/job-config.json):
 
-   Faça commit e efetue push das alterações.
+1. No clone local do repositório Git, [adicione](https://git-scm.com/docs/git-add) os arquivos. Agora, [faça commit](https://git-scm.com/docs/git-commit) das alterações e [efetue push](https://git-scm.com/docs/git-push) delas para o repositório.
 
 ## Configurar os segredos do repositório
 
@@ -113,23 +113,21 @@ Como os fluxos de trabalho do GitHub Actions precisam acessar recursos do Azure 
 
 Antes de criar segredos de repositório, você precisa gerar um token de acesso pessoal no Azure Databricks:
 
-1. No espaço de trabalho do Azure Databricks, selecione seu nome de usuário do Azure Databricks na barra superior e selecione **Configurações** na lista suspensa.
+1. No espaço de trabalho do Azure Databricks, selecione o ícone de *usuário* na barra superior e selecione **Configurações** na lista suspensa.
 
-2. Selecione **Desenvolvedor**.
+2. Na página **Desenvolvedor**, ao lado de **Tokens de acesso**, selecione **Gerenciar**.
 
-3. Ao lado de **Tokens de acesso**, selecione **Gerenciar**.
+3. Selecione **Gerar novo token** e escolha **Gerar**.
 
-4. Selecione **Gerar novo token** e escolha **Gerar**.
+4. Copie o token exibido e cole-o em algum lugar onde você possa consultá-lo mais tarde. Em seguida, selecione **Concluído**.
 
-5. Copie o token exibido para um local seguro e selecione **Concluído**.
-
-6. Agora, na página do repositório, selecione a guia **Configurações** .
+5. Agora, na página do repositório GitHub, selecione a guia **Configurações**.
 
    ![Guia Configurações do GitHub](./images/github-settings.png)
 
-7. Na barra lateral esquerda, selecione **Segredos e variáveis** e, em seguida, selecione **Ações**.
+6. Na barra lateral esquerda, selecione **Segredos e variáveis** e, em seguida, selecione **Ações**.
 
-8. Selecione **Novo segredo do repositório** e adicione cada uma destas variáveis:
+7. Selecione **Novo segredo do repositório** e adicione cada uma destas variáveis:
    - **Nome:** DATABRICKS_HOST **Segredo:** adicione a URL do Workspace do Databricks.
    - **Nome:** DATABRICKS_TOKEN **Segredo:** Adicione o token de acesso gerado anteriormente.
 
@@ -182,21 +180,21 @@ Agora que você armazenou as variáveis necessárias para acessar seu Workspace 
           run: databricks fs cp dbfs:/FileStore/sample_sales.csv . --overwrite
      ```
 
-Esse código instalará e configurará a CLI do Databricks e baixará os dados de exemplo para o repositório, sempre que uma confirmação for enviada por push ou uma solicitação de pull for mesclada.
+    Esse código instalará e configurará a CLI do Databricks e baixará os dados de exemplo para o repositório, sempre que uma confirmação for enviada por push ou uma solicitação de pull for mesclada.
 
-3. Nomeie o **pipeline de CI** do fluxo de trabalho e selecione **Confirmar alterações**. O pipeline será executado automaticamente e você poderá verificar seu status na guia **Ações** .
+3. Nomeie o fluxo de trabalho **CI_pipeline.yml** e selecione **Confirmar alterações**. O pipeline será executado automaticamente e você poderá verificar seu status na guia **Ações** .
 
-Depois que o fluxo de trabalho for concluído, é hora de definir as configurações do pipeline de CD.
+    Depois que o fluxo de trabalho for concluído, é hora de definir as configurações do pipeline de CD.
 
 4. Vá para a página do espeço de trabalho, selecione **Computação** e, em seguida, selecione o cluster.
 
 5. Na página do cluster, selecione **Mais...** e, em seguida, selecione **Exibir JSON**. Copie o ID do cluster.
 
-6. Abra o `job-config.json` no repositório e substitua `your_cluster_id` pelo ID do cluster que você acabou de copiar. Substitua também `/Workspace/Users/your_username/your_notebook` pelo caminho em seu workspace onde você deseja armazenar o notebook usado no pipeline. Confirme as alterações.
+6. No repositório, abra o **job-config.json** no repositório e substitua *your_cluster_id* pelo ID do cluster que você acabou de copiar. Substitua também  */Workspace/Users/your_username/your_notebook* pelo caminho no seu espaço de trabalho onde você deseja armazenar o notebook usado no pipeline. Confirme as alterações.
 
-> **Observação:** se você for para a guia **Ações** , verá que o pipeline de CI começou a ser executado novamente. Como ele deve ser acionado sempre que uma confirmação é enviada, a alteração `job-config.json` implantará o pipeline conforme esperado.
+    > **Observação:** se você for para a guia **Ações** , verá que o pipeline de CI começou a ser executado novamente. Como ele deve ser acionado sempre que um commit for enviado, alterar *job-config.json* implantará o pipeline conforme o esperado.
 
-7. Na guia **Ações** crie um novo fluxo de trabalho chamado **Pipeline de CD** e insira o seguinte código:
+7. Na guia **Ações**, crie um novo fluxo de trabalho chamado **CD_pipeline.yml** e insira o seguinte código:
 
      ```yaml
     name: CD Pipeline for Azure Databricks
@@ -229,7 +227,7 @@ Depois que o fluxo de trabalho for concluído, é hora de definir as configuraç
             ${{ secrets.DATABRICKS_TOKEN }}
             EOF
         - name: Upload Notebook to DBFS
-          run: databricks fs cp /path/to/your/notebook /Workspace/Users/your_username/your_notebook --overwrite
+          run: databricks fs cp sample_sales_notebook.dbc dbfs:/Workspace/Users/your_username/your_notebook --overwrite
           env:
             DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
 
@@ -241,9 +239,11 @@ Depois que o fluxo de trabalho for concluído, é hora de definir as configuraç
             DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
      ```
 
-Antes de efetivar as alterações, substitua `/path/to/your/notebook` pelo caminho do arquivo do notebook em seu repositório e `/Workspace/Users/your_username/your_notebook` pelo caminho do arquivo para o qual você deseja que o notebook seja importado no workspace do Databricks.
+    Antes de efetivar as alterações, substitua `/path/to/your/notebook` pelo caminho do arquivo do notebook em seu repositório e `/Workspace/Users/your_username/your_notebook` pelo caminho do arquivo para o qual você deseja que o notebook seja importado no workspace do Databricks.
 
-Esse código instalará e configurará novamente a CLI do Databricks, importará o Notebook para o Sistema de Arquivos do Databricks e criará e executará um trabalho que você poderá monitorar na página **Fluxos de Trabalho** do espaço de trabalho. Verifique a saída e verifique se a amostra de dados foi modificada.
+8. Confirme as alterações.
+
+    Esse código instalará e configurará novamente a CLI do Databricks, importará o Notebook para o Sistema de Arquivos do Databricks e criará e executará um trabalho que você poderá monitorar na página **Fluxos de Trabalho** do espaço de trabalho. Verifique a saída e verifique se a amostra de dados foi modificada.
 
 ## Limpar
 
