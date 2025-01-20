@@ -23,9 +23,12 @@ Este exercício deve levar aproximadamente **20** minutos para ser concluído.
 2. Crie um recurso do **Azure Databricks** com as seguintes configurações:
     - **Assinatura**: *Selecione sua assinatura do Azure*
     - **Grupo de recursos**: *crie um novo grupo de recursos chamado `msl-xxxxxxx` (em que "xxxxxxx" é um valor exclusivo)*
+    - **Nome do workspace**: `databricks-xxxxxxx`*(em que "xxxxxxx" é o valor usado no nome do grupo de recursos)*
     - **Região**: *selecione qualquer região disponível*.
-    - **Nome**: `databricks-xxxxxxx`*(em que "xxxxxxx" é um valor exclusivo)*
     - **Tipo de preço**: *premium* ou *avaliação*
+    - **Nome do Grupo de Recursos Gerenciados**: `databricks-xxxxxxx-managed`*(em que "xxxxxxx" é o valor usado no nome do grupo de recursos)*
+
+    ![Captura de tela da página Criar um workspace do Azure Databricks no portal do Azure.](./images/create-databricks.png)
 
 3. Selecione **Revisar + criar** e aguarde a conclusão da implantação. Em seguida, vá para o recurso e inicie o workspace.
 
