@@ -395,7 +395,7 @@ Até agora, você treinou um modelo de classificação usando o algoritmo de reg
 
     Desta vez, o pipeline inclui os mesmos estágios de preparação de recursos de antes, mas usa um algoritmo de *árvore de decisão* para treinar o modelo.
     
-   1. Execute o seguinte código para usar o novo pipeline com os dados de teste:
+1. Execute o seguinte código para usar o novo pipeline com os dados de teste:
 
     ```python
    # Get predictions
