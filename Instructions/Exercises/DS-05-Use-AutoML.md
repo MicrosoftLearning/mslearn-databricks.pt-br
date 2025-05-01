@@ -7,7 +7,7 @@ lab:
 
 O AutoML é um recurso do Azure Databricks que experimenta vários algoritmos e parâmetros com seus dados para treinar um modelo de machine learning ideal.
 
-Este exercício deve levar aproximadamente **30** minutos para ser concluído.
+Este exercício deve levar aproximadamente **45** minutos para ser concluído.
 
 > **Observação**: a interface do usuário do Azure Databricks está sujeita a melhorias contínuas. A interface do usuário pode ter sido alterada desde que as instruções neste exercício foram escritas.
 
@@ -81,15 +81,15 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
 Para treinar um modelo de machine learning usando o AutoML, você precisa carregar os dados de treinamento. Neste exercício, você treinará um modelo para classificar um pinguim como uma das três espécies com base em observações, incluindo sua localização e medidas corporais. Você carregará dados de treinamento que incluem o rótulo de espécie em uma tabela em um data warehouse do Azure Databricks.
 
 1. No portal do Azure Databricks para seu workspace, na barra lateral, em **SQL**, selecione **SQL Warehouses**.
-1. Observe que o workspace já inclui um SQL Warehouse chamado **Warehouse Inicial**.
+1. Observe que o espaço de trabalho já inclui um Depósito SQL chamado **Serverless Starter Warehouse**.
 1. No menu **Ações** (**⁝**) do SQL Warehouse, selecione **Editar**. Em seguida, defina a propriedade **Tamanho do cluster** como **2X-Small** e salve as alterações.
 1. Use o botão **Iniciar** para iniciar o SQL Warehouse (o que pode levar um ou dois minutos).
 
-> **Observação**: se o SQL Warehouse não for iniciado, sua assinatura pode ter cota insuficiente na região em que seu workspace do Azure Databricks está provisionado. Para obter detalhes, confira [Cota de vCPU do Azure necessária](https://docs.microsoft.com/azure/databricks/sql/admin/sql-endpoints#required-azure-vcpu-quota). Se isso acontecer, você pode tentar solicitar um aumento de cota, conforme detalhado na mensagem de erro, quando o depósito falhar ao iniciar. Como alternativa, tente excluir seu workspace e criar um novo em uma região diferente. Você pode especificar uma região como um parâmetro para o script de instalação da seguinte maneira: `./mslearn-databricks/setup.ps1 eastus`
+    > **Observação**: se o SQL Warehouse não for iniciado, sua assinatura pode ter cota insuficiente na região em que seu workspace do Azure Databricks está provisionado. Para obter detalhes, confira [Cota de vCPU do Azure necessária](https://docs.microsoft.com/azure/databricks/sql/admin/sql-endpoints#required-azure-vcpu-quota). Se isso acontecer, você pode tentar solicitar um aumento de cota, conforme detalhado na mensagem de erro, quando o depósito falhar ao iniciar. Como alternativa, tente excluir seu workspace e criar um novo em uma região diferente. Você pode especificar uma região como um parâmetro para o script de instalação da seguinte maneira: `./mslearn-databricks/setup.ps1 eastus`
 
 1. Faça o download do arquivo [**penguins.csv**](https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/penguins.csv) do `https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/penguins.csv` para seu computador local, salvando-o como **penguins.csv**.
-1. No portal do workspace do Azure Databricks, na barra lateral, selecione **(+) Novo** e selecione **Upload de Arquivo** e carregue o arquivo **penguins.csv** que foi baixado no computador.
-1. Na página **Carregar dados**, selecione o esquema **padrão** e defina o nome da tabela como **pinguins**. Em seguida, selecione **Criar tabela** no canto inferior esquerdo da página.
+1. No portal de espaço de trabalho do Azure Databricks, na barra lateral, selecione **(+) Novo** e, em seguida, selecione **Adicionar ou carregar dados**. Na página **Adicionar dados** selecione **Criar ou modificar tabela** e carregue o arquivo **penguins.csv** que você baixou para o seu computador.
+1. Na página **Criar ou modificar tabela a partir de arquivo** selecione o esquema **padrão** e defina o nome da tabela como **pinguins**. Em seguida, selecione **Criar tabela**.
 1. Quando a tabela tiver sido criada, revise seus detalhes.
 
 ## Criar um experimento de AutoML
@@ -97,10 +97,9 @@ Para treinar um modelo de machine learning usando o AutoML, você precisa carreg
 Agora que você tem alguns dados, pode usá-los com o AutoML para treinar um modelo.
 
 1. Na barra lateral à esquerda, selecione **Experimentos**.
-1. Na página **Experimentos**, selecione **Criar experimento de AutoML**.
+1. Na página **Experimentos**, localize o bloco **Classificação** e selecione **Iniciar treinamento**.
 1. Configure o experimento de AutoML com as seguintes definições:
     - **Cluster**: *Selecione seu cluster*
-    - **Tipo de problema de ML**: Classificação
     - **Entrada de conjunto de dados de treinamento**: *Navegue até o banco de dados de **padrão** e selecione a tabela **pinguins***
     - **Meta de previsão**: Espécie
     - **Nome do experimento**: Classificação de pinguins
@@ -112,7 +111,7 @@ Agora que você tem alguns dados, pode usá-los com o AutoML para treinar um mod
         - **Rótulo positivo**: *Deixar em branco*
         - **Local de armazenamento intermediário de dados**: Artefato do MLflow
 1. Use o botão **Iniciar AutoML** para iniciar o experimento. Feche os diálogos de informações exibidos.
-1. Aguarde a conclusão do experimento. Você pode usar o botão **Atualizar** à direita para exibir detalhes das execuções geradas.
+1. Aguarde a conclusão do experimento. Você pode ver detalhes das execuções geradas na guia **Execuções**.
 1. Após cinco minutos, o experimento será encerrado. Atualizar as execuções mostrará a execução que resultou no modelo de melhor desempenho (com base na métrica de *precisão* selecionada) na parte superior da lista.
 
 ## Implantar o modelo de melhor desempenho.
