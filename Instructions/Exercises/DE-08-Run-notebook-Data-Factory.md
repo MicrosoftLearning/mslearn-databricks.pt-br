@@ -107,6 +107,26 @@ Para usar o Azure Databricks de um pipeline do Azure Data Factory, você precisa
 1. Selecione **Gerar novo token** e gere um novo token com o comentário *Data Factory* e um tempo de vida vazio (para que o token não expire). Tenha cuidado para **copiar o token quando ele for exibido <u>antes</u> de selecionar *Concluído***.
 1. Cole o token copiado em um arquivo de texto para tê-lo à mão para mais tarde neste exercício.
 
+## Usar um pipeline para executar o notebook do Azure Databricks
+
+Agora que você criou um serviço vinculado, pode usá-lo em um pipeline para executar o notebook exibido anteriormente.
+
+### Criar um pipeline
+
+1. No Azure Data Factory Studio, no painel de navegação, selecione **Autor**.
+2. Na página **Autor**, no painel **Recursos de Fábrica**, use o ícone **+** para adicionar um **Pipeline**.
+3. No painel **Propriedades** do novo pipeline, altere o nome para `Process Data with Databricks`. Em seguida, use o botão **Propriedades** (que se parece com **<sub>*</sub>**) na extremidade direita da barra de ferramentas para ocultar o painel de **Propriedades**.
+4. No painel **Atividades**, expanda **Databricks** e arraste outra atividade de **Notebook** para a superfície do designer de pipeline.
+5. Com a nova atividade **Notebook1** selecionada, defina as seguintes propriedades no painel inferior:
+    - **Geral**:
+        - **Nome**: `Process Data`
+    - **Azure Databricks**:
+        - **Serviço vinculado do Databricks**: *Selecione o serviço vinculado **AzureDatabricks** que você criou anteriormente*
+    - **Configurações**:
+        - **Caminho do Notebook**: *Navegue até a pasta **Users/your_user_name** e selecione o notebook **Processar Dados***
+        - **Parâmetros de base**: *Adicionar um novo parâmetro chamado `folder` com o valor `product_data`*
+6. Use o botão **Validar** acima da superfície do designer de pipeline para validar o pipeline. Em seguida, use o botão **Publicar tudo** para publicá-lo (salvá-lo).
+
 ### Criar um serviço vinculado no Azure Data Factory
 
 1. Retorne ao portal do Azure e, no grupo de recursos **msl-*xxxxxxx***, selecione o recurso **adf*xxxxxxx*** do Azure Data Factory.
@@ -130,26 +150,6 @@ Para usar o Azure Databricks de um pipeline do Azure Data Factory, você precisa
     - **Versão do Python**: 3
     - **Opções de trabalho**: Fixo
     - **Trabalhos**: 1
-
-## Usar um pipeline para executar o notebook do Azure Databricks
-
-Agora que você criou um serviço vinculado, pode usá-lo em um pipeline para executar o notebook exibido anteriormente.
-
-### Criar um pipeline
-
-1. No Azure Data Factory Studio, no painel de navegação, selecione **Autor**.
-2. Na página **Autor**, no painel **Recursos de Fábrica**, use o ícone **+** para adicionar um **Pipeline**.
-3. No painel **Propriedades** do novo pipeline, altere o nome para `Process Data with Databricks`. Em seguida, use o botão **Propriedades** (que se parece com **<sub>*</sub>**) na extremidade direita da barra de ferramentas para ocultar o painel de **Propriedades**.
-4. No painel **Atividades**, expanda **Databricks** e arraste outra atividade de **Notebook** para a superfície do designer de pipeline.
-5. Com a nova atividade **Notebook1** selecionada, defina as seguintes propriedades no painel inferior:
-    - **Geral**:
-        - **Nome**: `Process Data`
-    - **Azure Databricks**:
-        - **Serviço vinculado do Databricks**: *Selecione o serviço vinculado **AzureDatabricks** que você criou anteriormente*
-    - **Configurações**:
-        - **Caminho do Notebook**: *Navegue até a pasta **Users/your_user_name** e selecione o notebook **Processar Dados***
-        - **Parâmetros de base**: *Adicionar um novo parâmetro chamado `folder` com o valor `product_data`*
-6. Use o botão **Validar** acima da superfície do designer de pipeline para validar o pipeline. Em seguida, use o botão **Publicar tudo** para publicá-lo (salvá-lo).
 
 ### Executar o pipeline
 
