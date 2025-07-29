@@ -118,7 +118,7 @@ Agora que você tem alguns dados, pode usá-los com o AutoML para treinar um mod
 
 Depois de executar um experimento de AutoML, você pode explorar o modelo de melhor desempenho que ele gerou.
 
-1. Na página do experimento de **Classificação de pinguins**, selecione **Exibir notebook para o melhor modelo** para abrir o notebook usado para fazer chover o modelo em uma nova guia do navegador.
+1. Na página do experimento de **Classificação de pinguins**, selecione **Exibir notebook para o melhor modelo** para abrir o notebook usado para treinar o modelo em uma nova guia do navegador.
 1. Percorra as células do notebook, anotando o código que foi usado para treinar o modelo.
 1. Feche a guia do navegador que contém o notebook para retornar à página de teste de **Classificação de pinguins**.
 1. Na lista de execuções, selecione o nome da primeira execução (que produziu o melhor modelo) para abri-lo.

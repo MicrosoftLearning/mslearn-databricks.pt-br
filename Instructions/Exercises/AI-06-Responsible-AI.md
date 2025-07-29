@@ -41,22 +41,21 @@ Se ainda não tiver um, provisione um recurso OpenAI do Azure na sua assinatura 
 
 ## Implantar o modelo necessário
 
-O Azure fornece um portal baseado na Web chamado **Estúdio de IA do Azure**, que você pode usar para implantar, gerenciar e explorar modelos. Você iniciará sua exploração do OpenAI do Azure usando o Estúdio de IA do Azure para implantar um modelo.
+O Azure fornece um portal baseado na Web chamado **Fábrica de IA do Azure**, que você pode usar para implantar, gerenciar e explorar modelos. Você irá iniciar a exploração do OpenAI do Azure usando o portal da Fábrica de IA do Azure para implantar um modelo.
 
-> **Observação**: À medida que você usa o Estúdio de IA do Azure, podem ser exibidas caixas de mensagens sugerindo tarefas para você executar. Você pode fechá-los e seguir as etapas desse exercício.
+> **Observação**: À medida que você usar o portal da Fábrica de IA do Azure, poderão ser exibidas caixas de mensagens sugerindo tarefas para você executar. Você pode fechá-los e seguir as etapas desse exercício.
 
-1. No portal do Azure, na página **Visão geral** do recurso OpenAI do Azure, role para baixo até a seção **Introdução** e clique no botão para abrir o **Estúdio de IA do Azure**.
+1. No portal do Azure, na página **Visão geral** do recurso OpenAI do Azure, role para baixo até a seção **Introdução** e clique no botão para abrir a **Fábrica de IA do Azure**.
    
-1. No Estúdio de IA do Azure, no painel à esquerda, selecione a página **Implantações** e visualize as implantações de modelo existentes. Se você ainda não tiver uma implantação, crie uma nova implantação do modelo **gpt-35-turbo** com as seguintes configurações:
-    - **Nome da implantação**: *gpt-35-turbo*
-    - **Modelo**: gpt-35-turbo
-    - **Versão do modelo**: padrão
+1. No portal da Fábrica de IA do Azure, no painel à esquerda, selecione a página **Implantações** e visualize as implantações de modelo existentes. Se você ainda não tiver uma, crie uma nova implantação do modelo **gpt-4o** com as seguintes configurações:
+    - **Nome da implantação**: *gpt-4o*
     - **Tipo de implantação**: Padrão
-    - **Limite de taxa de tokens por minuto**: 5K\*
+    - **Versão do modelo**: *usar a versão padrão*
+    - **Limite de taxa de tokens por minuto**: 10 mil\*
     - **Filtro de conteúdo**: Padrão
     - **Habilitar cota dinâmica**: Desabilitado
     
-> \* Um limite de taxa de 5.000 tokens por minuto é mais do que adequado para concluir este exercício, deixando capacidade para outras pessoas que usam a mesma assinatura.
+> \* Um limite de 10.000 tokens por minuto é mais do que suficiente para concluir este exercício, mantendo capacidade disponível para outras pessoas que usam a mesma assinatura.
 
 ## Provisionar um workspace do Azure Databricks
 
@@ -76,7 +75,7 @@ O Azure fornece um portal baseado na Web chamado **Estúdio de IA do Azure**, qu
 
 O Azure Databricks é uma plataforma de processamento distribuído que usa *clusters* do Apache Spark para processar dados em paralelo em vários nós. Cada cluster consiste em um nó de driver para coordenar o trabalho e nós de trabalho para executar tarefas de processamento. Neste exercício, você criará um cluster de *nó único* para minimizar os recursos de computação usados no ambiente de laboratório (no qual os recursos podem ser restritos). Em um ambiente de produção, você normalmente criaria um cluster com vários nós de trabalho.
 
-> **Dica**: Se você já tiver um cluster com uma versão de runtime 13.3 LTS **<u>ML</u>** ou superior em seu workspace do Azure Databricks, poderá usá-lo para concluir este exercício e ignorar este procedimento.
+> **Dica**: Se você já tiver um cluster com a versão 15.4 LTS **<u>ML</u>** ou superior do runtime no seu workspace do Databricks, poderá usá-lo para concluir este exercício e pular este procedimento.
 
 1. No portal do Azure, navegue até o grupo de recursos em que o workspace do Azure Databricks foi criado.
 2. Clique no recurso de serviço do Azure Databricks.
@@ -88,29 +87,17 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
 5. Na página **Novo Cluster**, crie um novo cluster com as seguintes configurações:
     - **Nome do cluster**: cluster *Nome do Usuário* (o nome do cluster padrão)
     - **Política**: Sem restrições
-    - **Modo de cluster**: Nó Único
-    - **Modo de acesso**: Usuário único (*com sua conta de usuário selecionada*)
-    - **Versão do runtime do Databricks**: *Selecione a edição do **<u>ML</u>** da última versão não beta do runtime (**Não** uma versão de runtime Standard) que:*
-        - ***Não** usa uma GPU*
-        - *Inclui o Scala > **2.11***
-        - *Inclui o Spark > **3.4***
+    - **Machine learning**: Habilitado
+    - **Databricks Runtime**: 15.4 LTS
     - **Usa a Aceleração do Photon**: <u>Não</u> selecionado
-    - **Tipo de nó**: Standard_D4ds_v5
-    - **Encerra após** *20* **minutos de inatividade**
+    - **Tipo de trabalho**: Standard_D4ds_v5
+    - **Nó único**: Marcado
 
 6. Aguarde a criação do cluster. Isso pode levar alguns minutos.
 
 > **Observação**: se o cluster não for iniciado, sua assinatura pode ter cota insuficiente na região onde seu workspace do Azure Databricks está provisionado. Consulte [Limite de núcleo da CPU impede a criação do cluster](https://docs.microsoft.com/azure/databricks/kb/clusters/azure-core-limit) para obter detalhes. Se isso acontecer, você pode tentar excluir seu workspace e criar um novo workspace em uma região diferente.
 
-## Instalar as bibliotecas necessárias
-
-1. Na página do cluster, selecione a guia **Bibliotecas**.
-
-2. Selecione **Instalar novo**.
-
-3. Escolha **PyPI** como a fonte da biblioteca e instale o `openai==1.42.0`.
-
-## Criar um novo notebook
+## Criar um notebook
 
 1. Na barra lateral, use o link **(+) Novo** para criar um **Notebook**.
    
@@ -169,7 +156,7 @@ IA responsável refere-se ao desenvolvimento, implantação e uso éticos e sust
 
     for row in neutral_input:
         completion = client.chat.completions.create(
-            model="gpt-35-turbo",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": row},
@@ -180,7 +167,7 @@ IA responsável refere-se ao desenvolvimento, implantação e uso éticos e sust
 
     for row in loaded_input:
         completion = client.chat.completions.create(
-            model="gpt-35-turbo",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": row},
