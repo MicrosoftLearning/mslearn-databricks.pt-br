@@ -1,9 +1,9 @@
 ---
 lab:
-  title: Implementação de LLMOps com o Azure Databricks
+  title: Implementar LLMOps com o Azure Databricks
 ---
 
-# Implementação de LLMOps com o Azure Databricks
+# Implementar LLMOps com o Azure Databricks
 
 O Azure Databricks oferece uma plataforma unificada que simplifica o ciclo de vida da IA, desde a preparação de dados até o fornecimento e monitoramento de modelos, otimizando o desempenho e a eficiência dos sistemas de machine learning. Ele oferece suporte ao desenvolvimento de aplicativos da IA generativa, utilizando recursos como o Unity Catalog para governança de dados, o MLflow para acompanhamento de modelos e o Mosaic AI Model Serving para implantação de LLMs.
 
