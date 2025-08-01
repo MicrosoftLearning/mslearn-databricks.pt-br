@@ -51,7 +51,7 @@ O Azure fornece um portal baseado na Web chamado **Fábrica de IA do Azure**, qu
     - **Nome da implantação**: *gpt-4o*
     - **Tipo de implantação**: Padrão
     - **Versão do modelo**: *usar a versão padrão*
-    - **Limite de taxa de tokens por minuto**: 10 mil\*
+    - **Limite de taxa de tokens por minuto**: 10 MIL\*
     - **Filtro de conteúdo**: Padrão
     - **Habilitar cota dinâmica**: Desabilitado
     
@@ -75,7 +75,7 @@ O Azure fornece um portal baseado na Web chamado **Fábrica de IA do Azure**, qu
 
 O Azure Databricks é uma plataforma de processamento distribuído que usa *clusters* do Apache Spark para processar dados em paralelo em vários nós. Cada cluster consiste em um nó de driver para coordenar o trabalho e nós de trabalho para executar tarefas de processamento. Neste exercício, você criará um cluster de *nó único* para minimizar os recursos de computação usados no ambiente de laboratório (no qual os recursos podem ser restritos). Em um ambiente de produção, você normalmente criaria um cluster com vários nós de trabalho.
 
-> **Dica**: Se você já tiver um cluster com a versão 15.4 LTS **<u>ML</u>** ou superior do runtime no seu workspace do Databricks, poderá usá-lo para concluir este exercício e pular este procedimento.
+> **Dica**: Se você já tiver um cluster com a versão 16.4 LTS **<u>ML</u>** ou superior do runtime no workspace do Azure Databricks, poderá usá-lo para concluir este exercício e pular este procedimento.
 
 1. No portal do Azure, navegue até o grupo de recursos em que o workspace do Azure Databricks foi criado.
 2. Clique no recurso de serviço do Azure Databricks.
@@ -88,7 +88,7 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
     - **Nome do cluster**: cluster *Nome do Usuário* (o nome do cluster padrão)
     - **Política**: Sem restrições
     - **Machine learning**: Habilitado
-    - **Databricks Runtime**: 15.4 LTS
+    - **Databricks Runtime**: 16.4-LTS
     - **Usa a Aceleração do Photon**: <u>Não</u> selecionado
     - **Tipo de trabalho**: Standard_D4ds_v5
     - **Nó único**: Marcado
