@@ -1,11 +1,11 @@
 ---
 lab:
-  title: Implantar espaços de trabalho com o Azure Databricks – Fluxos de trabalho
+  title: Implantar cargas de trabalho com os Trabalhos do Lakeflow no Azure Databricks
 ---
 
-# Implantar espaços de trabalho com o Azure Databricks – Fluxos de trabalho
+# Implantar cargas de trabalho com os Trabalhos do Lakeflow no Azure Databricks
 
-Os fluxos de trabalho do Azure Databricks fornecem uma plataforma robusta para implantar cargas de trabalho com eficiência. Com recursos como Trabalhos do Azure Databricks e Delta Live Tables, os usuários podem orquestrar pipelines complexos de processamento de dados, machine learning e análise.
+Os Trabalho do Lakeflow do Azure Databricks fornecem uma plataforma robusta para implantar cargas de trabalho com eficiência. Com recursos como Trabalhos do Azure Databricks e Delta Live Tables, os usuários podem orquestrar pipelines complexos de processamento de dados, machine learning e análise.
 
 Este laboratório levará aproximadamente **40** minutos para ser concluído.
 
@@ -41,7 +41,7 @@ Este exercício inclui um script para provisionar um novo workspace do Azure Da
 
 6. Se solicitado, escolha qual assinatura você deseja usar (isso só acontecerá se você tiver acesso a várias assinaturas do Azure).
 
-7. Aguarde a conclusão do script – isso normalmente leva cerca de 5 minutos, mas em alguns casos pode levar mais tempo. Enquanto você aguarda, revise o artigo [Agendar e orquestrar fluxos de trabalho](https://learn.microsoft.com/azure/databricks/jobs/) na documentação do Azure Databricks.
+7. Aguarde a conclusão do script – isso normalmente leva cerca de 5 minutos, mas em alguns casos pode levar mais tempo. Enquanto você aguarda, revise o artigo [Trabalhos do Lakeflow](https://learn.microsoft.com/azure/databricks/jobs/) na documentação do Azure Databricks.
 
 ## Criar um cluster
 
@@ -143,9 +143,9 @@ Implemente o fluxo de trabalho de processamento e análise de dados usando taref
 
 O Azure Databricks gerencia a orquestração de tarefas, o gerenciamento de clusters, o monitoramento e o relatório de erros para todos os seus trabalhos. Você pode executar seus trabalhos imediatamente, periodicamente por meio de um sistema de agendamento fácil de usar, sempre que novos arquivos chegarem em um local externo ou continuamente para garantir que uma instância do trabalho esteja sempre em execução.
 
-1. Na barra lateral à esquerda, clique em **Fluxos de trabalho**.
+1. No workspace, clique no ![ícone Fluxos de Trabalho.](./images/WorkflowsIcon.svg) **Trabalhos e Pipelines** na barra lateral.
 
-2. No painel Fluxos de trabalho, clique em **Criar trabalho**.
+2. No painel Trabalhos e Pipelines, selecione **Criar** e, em seguida, **Trabalho**.
 
 3. Altere o nome do trabalho padrão (**Novo trabalho *[data]***) para `ETL job`.
 
