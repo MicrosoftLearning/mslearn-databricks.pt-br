@@ -1,15 +1,17 @@
 ---
 lab:
-  title: Criar um pipeline de dados com tabelas do Delta Live
+  title: Criar um Pipeline Declarativo do Lakeflow
 ---
 
-# Criar um pipeline de dados com tabelas do Delta Live
+# Criar um Pipeline Declarativo do Lakeflow
 
-As Tabelas Dinâmicas Delta são uma estrutura declarativa para a criação de pipelines de processamento de dados confiáveis, testáveis e de fácil manutenção. Um pipeline é a principal unidade usada para configurar e executar fluxos de trabalho de processamento de dados com o Delta Live Tables. Ele vincula fontes de dados a conjuntos de dados de destino por meio de um DAG (grafo direcionado acíclico) declarado em Python ou SQL.
+Os Pipelines Declarativos do Lakeflow são uma estrutura dentro da Plataforma Lakehouse do Databricks para criar e executar pipelines de dados de forma **declarativa**. Isso significa que você especifica quais transformações de dados deseja realizar, e o sistema automaticamente determina como executá‑las de forma eficiente, lidando com muitas das complexidades da engenharia de dados tradicional.
+
+Os Pipelines Declarativos do Lakeflow simplificam o desenvolvimento de pipelines de ETL (Extrair, Transformar, Carregar) abstraindo os detalhes complexos e de baixo nível. Em vez de escrever um código de procedimento que dita cada etapa, você usa uma sintaxe declarativa mais simples em SQL ou Python.
 
 Este laboratório levará aproximadamente **40** minutos para ser concluído.
 
-> **Observação**: a interface do usuário do Azure Databricks está sujeita a melhorias contínuas. A interface do usuário pode ter sido alterada desde que as instruções neste exercício foram escritas.
+> **Observação**: a interface do usuário do Azure Databricks está sujeita a melhorias contínuas. A interface do usuário pode ter sido alterada desde que as instruções neste exercício foram escritas. Os Pipelines Declarativos do Lakeflow são a evolução das Delta Live Tables (DLT) do Databricks, oferecendo uma abordagem unificada para cargas de trabalho em lote e streaming.
 
 ## Provisionar um workspace do Azure Databricks
 
@@ -41,7 +43,7 @@ Este exercício inclui um script para provisionar um novo workspace do Azure Da
 
 6. Se solicitado, escolha qual assinatura você deseja usar (isso só acontecerá se você tiver acesso a várias assinaturas do Azure).
 
-7. Aguarde a conclusão do script – isso normalmente leva cerca de 5 minutos, mas em alguns casos pode levar mais tempo. Enquanto espera, revise o artigo [O que é o Delta Live Tables?](https://learn.microsoft.com/azure/databricks/delta-live-tables/) na documentação do Azure Databricks.
+7. Aguarde a conclusão do script – isso normalmente leva cerca de 5 minutos, mas em alguns casos pode levar mais tempo. Enquanto você aguarda, examine o artigo [Pipelines Declarativos do Lakeflow](https://learn.microsoft.com/azure/databricks/dlt/) na documentação do Azure Databricks.
 
 ## Criar um cluster
 
@@ -77,7 +79,7 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
 
 1. Na barra lateral, use o link **(+) Novo** para criar um **Notebook**.
 
-2. Altere o nome padrão do notebook (**Notebook Sem Título *[data]***) para `Create a pipeline with Delta Live tables` e, na lista suspensa **Conectar**, selecione o cluster, caso ainda não esteja selecionado. Se o cluster não executar, é porque ele pode levar cerca de um minuto para iniciar.
+2. Altere o nome padrão do notebook (**Notebook Sem Título *[data]***) para `Data Ingestion and Exploration` e, na lista suspensa **Conectar**, selecione o cluster, caso ainda não esteja selecionado. Se o cluster não executar, é porque ele pode levar cerca de um minuto para iniciar.
 
 3. Na primeira célula do notebook, insira o código a seguir, que usa os comandos de *shell* para baixar os arquivos de dados do GitHub para o sistema de arquivos usado pelo cluster.
 
@@ -90,16 +92,16 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
 
 4. Use a opção de menu **&#9656; Executar Célula** à esquerda da célula para executá-la. Em seguida, aguarde o término do trabalho do Spark executado pelo código.
 
-## Criar pipeline do Delta Live Tables usando SQL
+## Criar um Pipeline Declarativo do Lakeflow usando SQL
 
-1. Crie um novo notebook e renomeie-o para `Pipeline Notebook`.
+1. Crie um novo notebook e renomeie-o para `Covid Pipeline Notebook`.
 
 1. Ao lado do nome do notebook, selecione **Python** e altere o idioma padrão para **SQL**.
 
-1. Insira o código a seguir na primeira célula, mas não execute-o. Todas as células serão executadas após a criação do pipeline. Esse código define uma tabela do Delta Live que será preenchida pelos dados brutos baixados anteriormente:
+1. Insira o código a seguir na primeira célula, *mas não execute-o*. Todas as células serão executadas após a criação do pipeline. Esse código define uma exibição materializada que será preenchida pelos dados brutos baixados anteriormente:
 
      ```sql
-    CREATE OR REFRESH LIVE TABLE raw_covid_data
+    CREATE OR REFRESH MATERIALIZED VIEW raw_covid_data
     COMMENT "COVID sample dataset. This data was ingested from the COVID-19 Data Repository by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University."
     AS
     SELECT
@@ -114,7 +116,7 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
 1. Na primeira célula, use o ícone **+ Código** para adicionar uma nova célula e insira o código a seguir para consultar, filtrar e formatar os dados na tabela anterior antes da análise.
 
      ```sql
-    CREATE OR REFRESH LIVE TABLE processed_covid_data(
+    CREATE OR REFRESH MATERIALIZED VIEW processed_covid_data(
       CONSTRAINT valid_country_region EXPECT (Country_Region IS NOT NULL) ON VIOLATION FAIL UPDATE
     )
     COMMENT "Formatted and filtered data for analysis."
@@ -131,7 +133,7 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
 1. Em uma terceira célula de código, insira o código a seguir que criará uma exibição de dados enriquecida para análise posterior depois que o pipeline for executado.
 
      ```sql
-    CREATE OR REFRESH LIVE TABLE aggregated_covid_data
+    CREATE OR REFRESH MATERIALIZED VIEW aggregated_covid_data
     COMMENT "Aggregated daily data for the US with total counts."
     AS
     SELECT
@@ -143,20 +145,20 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
     GROUP BY Report_Date;
      ```
      
-1. Selecione **Delta Live Tables** na barra lateral esquerda e, em seguida, selecione **Criar pipeline**.
+1. Selecione **Trabalhos e Pipelines** na barra lateral esquerda e selecione **Pipeline de ETL**.
 
 1. Na página **Criar pipeline**, crie um novo pipeline com as seguintes configurações:
     - **Nome do pipeline**: `Covid Pipeline`
     - **Edição do produto**: avançado
     - **Modo do pipeline**: acionado
-    - **Código-fonte**: *navegue até* o notebook Notebook do Pipeline *na pasta*Users/user@name *.*
+    - **Código-fonte**: *Navegue até o seu* notebook Covid Pipeline *Notebook na *pasta* *Users/user@name.
     - **Opções de armazenamento**: metastore do Hive
     - **Local de armazenamento**: `dbfs:/pipelines/delta_lab`
     - **Esquema de destino**: *Insira*`default`
 
 1. Selecione **Criar** e depois **Iniciar**. Em seguida, aguarde a execução do pipeline (o que pode levar algum tempo).
  
-1. Depois que o pipeline for executado, volte para o notebook *Criar um pipeline com Delta Live tables* que você criou primeiro e execute o seguinte código em uma nova célula para verificar que os arquivos das três novas tabelas foram criados no local de armazenamento especificado:
+1. Depois que o pipeline for executado, volte para o notebook *Ingestão e Exploração de dados* que você criou primeiro e execute o seguinte código em uma nova célula para verificar que os arquivos das três novas tabelas foram criados no local de armazenamento especificado:
 
      ```python
     display(dbutils.fs.ls("dbfs:/pipelines/delta_lab/schemas/default/tables"))
@@ -174,7 +176,7 @@ O Azure Databricks é uma plataforma de processamento distribuído que usa *clus
 
 Depois de criar as tabelas, é possível carregá-las em dataframes e visualizar os dados.
 
-1. No notebook *Cirar um pipeline com Delta Live tables*, adicione uma nova célula de código e execute o seguinte código para carregar o `aggregated_covid_data` em um dataframe:
+1. No notebook *Ingestão e Exploração de dados*, adicione uma nova célula de código e execute o seguinte código para carregar o `aggregated_covid_data` em um dataframe:
 
     ```sql
     %sql
